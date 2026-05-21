@@ -65,13 +65,13 @@
 
 <style>
   :root {
-    --bg:      #080d18;
-    --surface: #0e1420;
-    --surface2:#141c2a;
-    --border:  #1e2d42;
-    --accent:  #00e5a0;
-    --danger:  #ff4d6d;
-    --text:    #e8f0fe;
+    --bg:      #f0f4f8;
+    --surface: #ffffff;
+    --surface2:#f5f7fa;
+    --border:  #dce3ed;
+    --accent:  #00a67e;
+    --danger:  #e03355;
+    --text:    #0f1c2e;
     --muted:   #6b7fa3;
     --font:    'Sora', sans-serif;
     --mono:    'DM Mono', monospace;
@@ -88,23 +88,23 @@
   body::before {
     content: ''; position: fixed; inset: 0; z-index: 0;
     background-image:
-      linear-gradient(rgba(0,229,160,.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,229,160,.04) 1px, transparent 1px);
+      linear-gradient(rgba(0,166,126,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,166,126,.06) 1px, transparent 1px);
     background-size: 44px 44px;
     mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
     pointer-events: none;
   }
 
   .orb { position: fixed; border-radius: 50%; filter: blur(90px); pointer-events: none; z-index: 0; animation: drift 12s ease-in-out infinite alternate; }
-  .orb-1 { width: 420px; height: 420px; background: radial-gradient(circle, rgba(0,229,160,.13), transparent 70%); top: -120px; left: -80px; }
-  .orb-2 { width: 360px; height: 360px; background: radial-gradient(circle, rgba(0,184,255,.10), transparent 70%); bottom: -100px; right: -80px; animation-delay: -6s; }
+  .orb-1 { width: 420px; height: 420px; background: radial-gradient(circle, rgba(0,166,126,.12), transparent 70%); top: -120px; left: -80px; }
+  .orb-2 { width: 360px; height: 360px; background: radial-gradient(circle, rgba(0,140,220,.09), transparent 70%); bottom: -100px; right: -80px; animation-delay: -6s; }
   @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(30px,20px) scale(1.06); } }
 
   .card {
     position: relative; z-index: 1;
     background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
     padding: 52px 44px 44px; width: 100%; max-width: 420px;
-    box-shadow: 0 32px 80px rgba(0,0,0,.55), 0 0 0 1px rgba(0,229,160,.05);
+    box-shadow: 0 32px 80px rgba(15,28,46,.10), 0 0 0 1px rgba(0,166,126,.07);
     animation: cardIn .4s cubic-bezier(.22,1,.36,1); text-align: center;
     margin-bottom: 80px;
   }
@@ -131,7 +131,7 @@
     font-size: .84rem; margin-bottom: 20px; line-height: 1.45; text-align: left;
   }
   .msg svg { flex-shrink: 0; margin-top: 1px; }
-  .msg-error { background: rgba(255,77,109,.08); border: 1px solid rgba(255,77,109,.2); color: #ff8099; }
+  .msg-error { background: rgba(224,51,85,.06); border: 1px solid rgba(224,51,85,.2); color: #c0223e; }
 
   .google-btn {
     width: 100%; padding: 15px 20px;
@@ -160,8 +160,8 @@
   /* ── FOOTER matching evoaiglobal.ai ── */
   .site-footer {
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;
-    background: #0b1020;
-    border-top: 1px solid #1a2540;
+    background: #ffffff;
+    border-top: 1px solid #dce3ed;
     padding: 14px 40px;
   }
 
@@ -174,12 +174,12 @@
   .footer-social { display: flex; align-items: center; gap: 8px; }
   .social-icon {
     width: 30px; height: 30px; border-radius: 6px;
-    border: 1px solid #1e2d42;
+    border: 1px solid #dce3ed;
     display: flex; align-items: center; justify-content: center;
     color: var(--accent); text-decoration: none; transition: all .18s;
-    background: #0e1420;
+    background: #f5f7fa;
   }
-  .social-icon:hover { border-color: var(--accent); background: rgba(0,229,160,.08); }
+  .social-icon:hover { border-color: var(--accent); background: rgba(0,166,126,.08); }
   .social-icon svg { width: 13px; height: 13px; }
 
   .footer-middle {
@@ -187,7 +187,7 @@
     font-size: .72rem; color: var(--muted);
   }
   .footer-middle .evoai-link {
-    background: linear-gradient(90deg, #00e5a0, #00b8ff);
+    background: linear-gradient(90deg, #00a67e, #0090cc);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     background-clip: text; font-weight: 700; text-decoration: none;
   }
