@@ -125,19 +125,24 @@
   .pill-btn.primary:hover { background: #185FA5; }
 
   .user-chip {
-    display: flex; align-items: center; gap: 8px;
-    background: #042C53; border: 1px solid #185FA5;
-    border-radius: 8px; padding: 5px 12px 5px 6px;
+    display: flex; align-items: center; gap: 10px;
+    padding-left: 14px;
+    border-left: 1px solid rgba(55,138,221,.25);
   }
   .user-avatar {
-    width: 26px; height: 26px; border-radius: 6px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #0C2D4A; border: 1.5px solid #378ADD;
     display: flex; align-items: center; justify-content: center;
-    font-size: .65rem; font-weight: 700; color: #ffffff; flex-shrink: 0;
-    font-family: var(--mono);
+    font-size: .68rem; font-weight: 500; color: #85B7EB; flex-shrink: 0;
+    font-family: var(--mono); position: relative;
+  }
+  .user-avatar::after {
+    content: ''; width: 8px; height: 8px; border-radius: 50%;
+    background: #1D9E75; border: 2px solid rgba(5,27,54,.98);
+    position: absolute; bottom: -1px; right: -1px;
   }
   .user-info { line-height: 1.2; }
-  .user-info-name  { font-size: .75rem; font-weight: 600; color: #E8F4FF; }
+  .user-info-name  { font-size: .75rem; font-weight: 500; color: #E8F4FF; }
   .user-info-email { font-size: .65rem; color: #85B7EB; }
 
   .signout-btn {
