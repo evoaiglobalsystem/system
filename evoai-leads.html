@@ -446,22 +446,37 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 14px;
+    padding: 10px 14px;
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
+    background: var(--surface2);
+    border-radius: 10px 10px 0 0;
   }
   .board-col-label {
     font-size: .72rem;
     font-weight: 700;
     letter-spacing: .08em;
     text-transform: uppercase;
+    color: var(--text) !important;
+  }
+  .board-col-label-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    flex-shrink: 0;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
   }
   .board-col-count {
     font-family: var(--mono);
     font-size: .65rem;
-    background: var(--surface2);
+    background: var(--surface);
     border: 1px solid var(--border);
-    color: var(--muted);
+    color: var(--text);
+    font-weight: 600;
     padding: 1px 7px;
     border-radius: 20px;
   }
@@ -1131,14 +1146,14 @@ const PAGE_SIZE   = 15;
 
 /* ── BOARD CONFIG ── */
 const BOARD_STAGES = [
-  { key: 'New',          label: 'New',           color: '#e8f0fe' },
-  { key: 'Contacted',    label: 'Contacted',      color: '#ffb730' },
-  { key: 'Discovery Call', label: 'Discovery',    color: '#b0bec5' },
-  { key: 'Qualified',    label: 'Qualified',      color: '#64b4ff' },
-  { key: 'Proposal Sent', label: 'Proposal Sent', color: '#c084fc' },
-  { key: 'Negotiation',  label: 'Negotiation',    color: '#a0aec0' },
-  { key: 'Won',          label: 'Won',            color: '#00c864' },
-  { key: 'Lost',         label: 'Lost',           color: '#ff4d4d' },
+  { key: 'New',           label: 'New',           color: '#64748b' },
+  { key: 'Contacted',     label: 'Contacted',      color: '#f59e0b' },
+  { key: 'Discovery Call', label: 'Discovery',     color: '#6366f1' },
+  { key: 'Qualified',     label: 'Qualified',      color: '#3b82f6' },
+  { key: 'Proposal Sent', label: 'Proposal Sent',  color: '#a855f7' },
+  { key: 'Negotiation',   label: 'Negotiation',    color: '#f97316' },
+  { key: 'Won',           label: 'Won',            color: '#10b981' },
+  { key: 'Lost',          label: 'Lost',           color: '#ef4444' },
 ];
 
 /* ── getAuthToken ── */
@@ -1333,7 +1348,7 @@ function renderTable() {
       <td style="font-size:.78rem">${esc(l.service||'—')}</td>
       <td>${statusBadge(l.status)}</td>
       <td style="font-family:var(--mono);font-size:.74rem;color:var(--accent);font-weight:600;">${l.dealvalue ? '$' + Number(l.dealvalue).toLocaleString('en-US') : '<span style="color:var(--border)">—</span>'}</td>
-      <td style="font-size:.73rem;font-family:var(--mono);color:${l.followupdate && l.followupdate <= new Date().toISOString().slice(0,10) ? 'var(--warn)' : 'var(--muted)'};">${esc(l.followupdate||'—')}</td>
+      <td style="font-size:.73rem;font-family:var(--mono);color:${fmtDate(l.followupdate) && fmtDate(l.followupdate) <= new Date().toISOString().slice(0,10) ? 'var(--warn)' : 'var(--muted)'};">${esc(fmtDate(l.followupdate)||'—')}</td>
       <td style="font-size:.73rem;color:var(--muted);font-family:var(--mono)">${esc(String(l.date||''))}</td>
       <td>
         <div class="row-actions">
@@ -1381,8 +1396,11 @@ function renderBoard() {
     const stageValueStr = stageValue > 0 ? '$' + Math.round(stageValue).toLocaleString('en-US') : '';
     head.innerHTML = `
       <div style="min-width:0;">
-        <span class="board-col-label" style="color:${stage.color}">${esc(stage.label)}</span>
-        ${stageValueStr ? `<div style="font-family:var(--mono);font-size:.6rem;color:var(--accent);font-weight:600;margin-top:2px;">${stageValueStr}</div>` : ''}
+        <div style="display:flex;align-items:center;">
+          <span class="board-col-label-dot" style="background:${stage.color}"></span>
+          <span class="board-col-label">${esc(stage.label)}</span>
+        </div>
+        ${stageValueStr ? `<div style="font-family:var(--mono);font-size:.6rem;color:var(--accent);font-weight:600;margin-top:2px;padding-left:14px;">${stageValueStr}</div>` : ''}
       </div>
       <span class="board-col-count" id="bcnt-${stage.key.replace(/ /g,'-')}">${stageLeads.length}</span>`;
     col.appendChild(head);
@@ -1459,7 +1477,7 @@ function createBoardCard(l) {
     ${(function(){
       const today = new Date().toISOString().slice(0,10);
       const dv = l.dealvalue ? '<span style="font-family:var(--mono);font-size:.62rem;color:var(--accent);font-weight:600;">$' + Number(l.dealvalue).toLocaleString('en-US') + '</span>' : '';
-      const fu = l.followupdate ? '<span style="font-family:var(--mono);font-size:.60rem;color:' + (l.followupdate <= today ? 'var(--warn)' : 'var(--muted)') + ';" title="Follow-up">\uD83D\uDCC5 ' + esc(l.followupdate) + '</span>' : '';
+      const fu = l.followupdate ? '<span style="font-family:var(--mono);font-size:.60rem;color:' + (fmtDate(l.followupdate) <= today ? 'var(--warn)' : 'var(--muted)') + ';" title="Follow-up">\uD83D\uDCC5 ' + esc(fmtDate(l.followupdate)) + '</span>' : '';
       if (dv || fu) return '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">' + dv + fu + '</div>';
       return '';
     })()}`;
@@ -1582,7 +1600,7 @@ function renderList() {
       <!-- col 6: deal value -->
       <div style="font-family:var(--mono);font-size:.72rem;color:var(--accent);font-weight:600;">${l.dealvalue ? '$' + Number(l.dealvalue).toLocaleString('en-US') : '<span style="opacity:.6">—</span>'}</div>
       <!-- col 7: follow-up date -->
-      <div style="font-family:var(--mono);font-size:.68rem;color:${l.followupdate && l.followupdate <= new Date().toISOString().slice(0,10) ? 'var(--warn)' : 'var(--muted)'};">${esc(l.followupdate||'—')}</div>
+      <div style="font-family:var(--mono);font-size:.68rem;color:${fmtDate(l.followupdate) && fmtDate(l.followupdate) <= new Date().toISOString().slice(0,10) ? 'var(--warn)' : 'var(--muted)'};">${esc(fmtDate(l.followupdate)||'—')}</div>
       <!-- col 8: actions -->
       <div class="list-item-actions" onclick="event.stopPropagation()">
         <button class="icon-btn" title="View" onclick="viewLead('${esc(l.leadId)}')">
@@ -1663,7 +1681,7 @@ function updateCounts() {
 
   // Follow-ups due: followupdate <= today (overdue or due today)
   const today = new Date().toISOString().slice(0, 10);
-  const dueCount = allLeads.filter(l => l.followupdate && l.followupdate <= today && l.status !== 'Won' && l.status !== 'Lost').length;
+  const dueCount = allLeads.filter(l => fmtDate(l.followupdate) && fmtDate(l.followupdate) <= today && l.status !== 'Won' && l.status !== 'Lost').length;
   document.getElementById('s-followup').textContent = dueCount > 0 ? dueCount : '0';
 }
 
@@ -1773,7 +1791,7 @@ function viewLead(leadId) {
   document.getElementById('viewBody').innerHTML =
     section('Contact Information', [['Name',lead.name],['Email',lead.email],['Phone',lead.phone],['LinkedIn',lead.linkedin,true]]) +
     section('Company', [['Company',lead.company],['Job Title',lead.jobtitle],['Industry',lead.industry]]) +
-    section('Lead Details', [['Status',lead.status],['Service',lead.service],['Source',lead.source],['Page',lead.page],['Date',lead.date],['Deal Value',lead.dealvalue ? '$' + Number(lead.dealvalue).toLocaleString('en-US') : ''],['Follow-up Date',lead.followupdate]]) +
+    section('Lead Details', [['Status',lead.status],['Service',lead.service],['Source',lead.source],['Page',lead.page],['Date',lead.date],['Deal Value',lead.dealvalue ? '$' + Number(lead.dealvalue).toLocaleString('en-US') : ''],['Follow-up Date',fmtDate(lead.followupdate)]]) +
     section('Notes', [['Message',lead.message],['Comments',lead.comments]]);
   document.getElementById('viewOverlay').classList.add('open');
 }
@@ -1803,6 +1821,11 @@ document.querySelectorAll('.overlay').forEach(o => {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') document.querySelectorAll('.overlay.open').forEach(o => o.classList.remove('open'));
 });
+
+function fmtDate(val) {
+  if (!val) return '';
+  return String(val).slice(0, 10); // handles both YYYY-MM-DD and ISO timestamps
+}
 
 function statusBadge(s) {
   const map = { 'New':'new','Contacted':'contacted','Discovery Call':'discovery',
