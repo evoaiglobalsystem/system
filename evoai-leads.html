@@ -290,6 +290,65 @@
   .badge-won         { background: rgba(55,138,221,.25);  color: #E8F4FF;  border: 1px solid rgba(55,138,221,.5); }
   .badge-lost        { background: rgba(237,147,177,.15); color: #ED93B1;  border: 1px solid rgba(237,147,177,.35); }
 
+  /* ── SCORE BADGES ── */
+  .score-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; font-size: .64rem; font-weight: 700; font-family: var(--mono); letter-spacing: .04em; }
+  .score-hot  { background: rgba(255,77,109,.15); color: #ff4d6d; border: 1px solid rgba(255,77,109,.3); }
+  .score-warm { background: rgba(255,183,48,.12); color: #ffb730; border: 1px solid rgba(255,183,48,.3); }
+  .score-cold { background: rgba(100,180,255,.1); color: #64b4ff; border: 1px solid rgba(100,180,255,.25); }
+  .score-dot  { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+  /* ── HELP PANEL ── */
+  #helpPanel { position: fixed; top: 0; right: -480px; bottom: 0; z-index: 500; width: 460px; background: var(--surface); border-left: 1px solid var(--border); box-shadow: -20px 0 60px rgba(0,0,0,.5); display: flex; flex-direction: column; transition: right .3s cubic-bezier(.4,0,.2,1); overflow: hidden; }
+  #helpPanel.open { right: 0; }
+  .help-overlay { display: none; position: fixed; inset: 0; z-index: 499; background: rgba(4,8,14,.5); backdrop-filter: blur(3px); }
+  .help-overlay.open { display: block; }
+  .help-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--border); flex-shrink: 0; background: var(--surface2); }
+  .help-head-left { display: flex; align-items: center; gap: 10px; }
+  .help-head-icon { width: 32px; height: 32px; border-radius: 8px; background: rgba(55,138,221,.1); border: 1px solid rgba(55,138,221,.25); display: flex; align-items: center; justify-content: center; color: var(--accent); }
+  .help-title { font-size: .95rem; font-weight: 700; letter-spacing: -.01em; }
+  .help-subtitle { font-size: .7rem; color: var(--muted); margin-top: 2px; }
+  .help-body { flex: 1; overflow-y: auto; padding: 20px 22px; }
+  .help-section { margin-bottom: 22px; }
+  .help-section-title { font-size: .65rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 6px; }
+  .help-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(24,95,165,.2); font-size: .8rem; }
+  .help-row:last-child { border-bottom: none; }
+  .help-row-key { flex-shrink: 0; width: 130px; font-weight: 600; color: var(--text); font-size: .78rem; }
+  .help-row-val { color: var(--muted); line-height: 1.55; font-size: .77rem; }
+  .score-meter-wrap { margin: 12px 0 6px; }
+  .score-tier { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; margin-bottom: 6px; border: 1px solid transparent; }
+  .score-tier.hot  { background: rgba(255,77,109,.08); border-color: rgba(255,77,109,.2); }
+  .score-tier.warm { background: rgba(255,183,48,.08); border-color: rgba(255,183,48,.2); }
+  .score-tier.cold { background: rgba(100,180,255,.08); border-color: rgba(100,180,255,.2); }
+  .score-tier-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .score-tier.hot  .score-tier-dot { background: #ff4d6d; }
+  .score-tier.warm .score-tier-dot { background: #ffb730; }
+  .score-tier.cold .score-tier-dot { background: #64b4ff; }
+  .score-tier-label { font-weight: 700; font-size: .78rem; flex-shrink: 0; width: 52px; }
+  .score-tier.hot  .score-tier-label { color: #ff4d6d; }
+  .score-tier.warm .score-tier-label { color: #ffb730; }
+  .score-tier.cold .score-tier-label { color: #64b4ff; }
+  .score-tier-range { font-family: var(--mono); font-size: .7rem; color: var(--muted); flex-shrink: 0; width: 54px; }
+  .score-tier-desc { font-size: .73rem; color: var(--muted); }
+  .points-table { width: 100%; border-collapse: collapse; font-size: .76rem; margin-top: 4px; }
+  .points-table th { text-align: left; padding: 6px 10px; font-size: .62rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: var(--surface2); border-bottom: 1px solid var(--border); }
+  .points-table td { padding: 7px 10px; border-bottom: 1px solid rgba(24,95,165,.2); color: var(--muted); }
+  .points-table tr:last-child td { border-bottom: none; }
+  .points-table td:first-child { color: var(--text); font-weight: 600; }
+  .points-table td:last-child { font-family: var(--mono); font-size: .72rem; color: var(--accent); text-align: right; }
+  .stage-row { display: flex; align-items: center; gap: 9px; padding: 7px 0; border-bottom: 1px solid rgba(24,95,165,.2); font-size: .77rem; }
+  .stage-row:last-child { border-bottom: none; }
+  .stage-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .stage-name { font-weight: 600; color: var(--text); width: 120px; flex-shrink: 0; }
+  .stage-pts { font-family: var(--mono); font-size: .7rem; color: var(--accent); background: rgba(55,138,221,.08); border: 1px solid rgba(55,138,221,.2); border-radius: 4px; padding: 1px 7px; flex-shrink: 0; }
+  .stage-bar-wrap { flex: 1; height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+  .stage-bar-fill { height: 100%; border-radius: 3px; }
+  .stage-desc { font-size: .7rem; color: var(--muted); flex-shrink: 0; width: 100px; text-align: right; }
+  .help-tip { display: flex; gap: 10px; align-items: flex-start; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 7px; font-size: .76rem; }
+  .help-tip-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+  .help-tip-text { color: var(--muted); line-height: 1.5; }
+  .help-tip-text strong { color: var(--text); }
+  .help-footer { flex-shrink: 0; padding: 12px 22px; border-top: 1px solid var(--border); background: var(--surface2); font-size: .68rem; color: var(--muted); text-align: center; font-family: var(--mono); letter-spacing: .04em; }
+
   /* ── ACTION BUTTONS ── */
   .row-actions { display: flex; gap: 5px; }
   .icon-btn {
@@ -759,6 +818,10 @@
   </div>
   <div class="nav-right">
     <button class="pill-btn outline" onclick="loadLeads()">↻ Refresh</button>
+    <button class="pill-btn outline" onclick="toggleHelpPanel()" style="display:flex;align-items:center;gap:6px;font-size:.76rem;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Help
+    </button>
     <button class="pill-btn primary" onclick="openCreate()">+ New Lead</button>
     <button class="signout-btn" onclick="doSignOut()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -955,12 +1018,13 @@
               <th>Industry</th>
               <th>Service</th>
               <th>Status</th>
+              <th>Score</th>
               <th>Deal Value</th>
               <th style="width:80px;">Actions</th>
             </tr>
           </thead>
           <tbody id="leadsBody">
-            <tr><td colspan="8">
+            <tr><td colspan="9">
               <div class="empty-state">
                 <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 <p>Loading leads…</p>
@@ -1112,6 +1176,93 @@
 </div>
 
 </div><!-- end #authShell -->
+
+<!-- HELP OVERLAY -->
+<div class="help-overlay" id="helpOverlay" onclick="toggleHelpPanel()"></div>
+
+<!-- HELP REFERENCE PANEL -->
+<div id="helpPanel">
+  <div class="help-head">
+    <div class="help-head-left">
+      <div class="help-head-icon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <div>
+        <div class="help-title">Reference Guide</div>
+        <div class="help-subtitle">Scoring logic, statuses &amp; field definitions</div>
+      </div>
+    </div>
+    <button class="modal-close" onclick="toggleHelpPanel()">&#x2715;</button>
+  </div>
+  <div class="help-body">
+
+    <div class="help-section">
+      <div class="help-section-title">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Lead Score Tiers
+      </div>
+      <div class="score-meter-wrap">
+        <div class="score-tier hot"><div class="score-tier-dot"></div><div class="score-tier-label">🔴 HOT</div><div class="score-tier-range">60 – 100</div><div class="score-tier-desc">High-intent lead. Prioritise immediately.</div></div>
+        <div class="score-tier warm"><div class="score-tier-dot"></div><div class="score-tier-label">🟡 WARM</div><div class="score-tier-range">35 – 59</div><div class="score-tier-desc">Showing interest. Nurture with follow-ups.</div></div>
+        <div class="score-tier cold"><div class="score-tier-dot"></div><div class="score-tier-label">🔵 COLD</div><div class="score-tier-range">0 – 34</div><div class="score-tier-desc">Early stage. Add details to improve score.</div></div>
+      </div>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-title">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        How Points Are Calculated
+      </div>
+      <table class="points-table">
+        <thead><tr><th>Attribute</th><th>Condition</th><th>Points</th></tr></thead>
+        <tbody>
+          <tr><td>Email</td><td>Filled in</td><td>+10</td></tr>
+          <tr><td>Phone</td><td>Filled in</td><td>+15</td></tr>
+          <tr><td>Company</td><td>Filled in</td><td>+10</td></tr>
+          <tr><td>LinkedIn</td><td>Filled in</td><td>+10</td></tr>
+          <tr><td>Service</td><td>Selected</td><td>+10</td></tr>
+          <tr><td>Deal Value</td><td>+1 per $5k, capped</td><td>+0 – 20</td></tr>
+          <tr><td>Pipeline Stage</td><td>See stage table below</td><td>varies</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-title">Pipeline Stages &amp; Points</div>
+      <div>
+        <div class="stage-row"><div class="stage-dot" style="background:#e8f0fe"></div><div class="stage-name">New</div><div class="stage-pts">+5</div><div class="stage-bar-wrap"><div class="stage-bar-fill" style="width:5%;background:#e8f0fe"></div></div><div class="stage-desc">Just submitted</div></div>
+        <div class="stage-row"><div class="stage-dot" style="background:#ffb730"></div><div class="stage-name">Contacted</div><div class="stage-pts">+15</div><div class="stage-bar-wrap"><div class="stage-bar-fill" style="width:15%;background:#ffb730"></div></div><div class="stage-desc">First touch made</div></div>
+        <div class="stage-row"><div class="stage-dot" style="background:#b0bec5"></div><div class="stage-name">Discovery Call</div><div class="stage-pts">+25</div><div class="stage-bar-wrap"><div class="stage-bar-fill" style="width:25%;background:#b0bec5"></div></div><div class="stage-desc">Call booked/done</div></div>
+        <div class="stage-row"><div class="stage-dot" style="background:#64b4ff"></div><div class="stage-name">Qualified</div><div class="stage-pts">+40</div><div class="stage-bar-wrap"><div class="stage-bar-fill" style="width:40%;background:#64b4ff"></div></div><div class="stage-desc">High intent</div></div>
+        <div class="stage-row"><div class="stage-dot" style="background:#c084fc"></div><div class="stage-name">Proposal Sent</div><div class="stage-pts">+55</div><div class="stage-bar-wrap"><div class="stage-bar-fill" style="width:55%;background:#c084fc"></div></div><div class="stage-desc">Offer sent</div></div>
+        <div class="stage-row"><div class="stage-dot" style="background:#a0aec0"></div><div class="stage-name">Negotiation</div><div class="stage-pts">+70</div><div class="stage-bar-wrap"><div class="stage-bar-fill" style="width:70%;background:#a0aec0"></div></div><div class="stage-desc">Terms discussed</div></div>
+        <div class="stage-row"><div class="stage-dot" style="background:#00c864"></div><div class="stage-name">Won</div><div class="stage-pts">+100</div><div class="stage-bar-wrap"><div class="stage-bar-fill" style="width:100%;background:#00c864"></div></div><div class="stage-desc">Closed ✓</div></div>
+        <div class="stage-row"><div class="stage-dot" style="background:#ff4d4d"></div><div class="stage-name">Lost</div><div class="stage-pts">+0</div><div class="stage-bar-wrap"><div class="stage-bar-fill" style="width:1%;background:#ff4d4d"></div></div><div class="stage-desc">Not closed</div></div>
+      </div>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-title">Field Definitions</div>
+      <div class="help-row"><div class="help-row-key">Lead ID</div><div class="help-row-val">Auto-generated unique identifier for each lead record.</div></div>
+      <div class="help-row"><div class="help-row-key">Source</div><div class="help-row-val">Where the lead originated — Website, LinkedIn, Referral, etc.</div></div>
+      <div class="help-row"><div class="help-row-key">Page / URL</div><div class="help-row-val">The page the lead submitted from (e.g. /services).</div></div>
+      <div class="help-row"><div class="help-row-key">Deal Value</div><div class="help-row-val">Estimated deal size in USD — contributes up to +20 pts to the lead score.</div></div>
+      <div class="help-row"><div class="help-row-key">Follow-up Date</div><div class="help-row-val">Scheduled next-contact date. Overdue dates appear highlighted in the sidebar.</div></div>
+      <div class="help-row"><div class="help-row-key">Comments</div><div class="help-row-val">Internal notes visible only to your team — not sent to the lead.</div></div>
+    </div>
+
+    <div class="help-section">
+      <div class="help-section-title">Pro Tips</div>
+      <div class="help-tip"><div class="help-tip-icon">🔴</div><div class="help-tip-text"><strong>Score increases automatically</strong> as you fill in more fields and advance the pipeline stage — no manual input needed.</div></div>
+      <div class="help-tip"><div class="help-tip-icon">⏰</div><div class="help-tip-text"><strong>Overdue filter:</strong> Click "Follow Up Dues" in the sidebar to instantly see all leads with past follow-up dates.</div></div>
+      <div class="help-tip"><div class="help-tip-icon">💰</div><div class="help-tip-text"><strong>Pipeline Value</strong> in the stats bar counts all open deals (excluding Won/Lost).</div></div>
+      <div class="help-tip"><div class="help-tip-icon">🔄</div><div class="help-tip-text"><strong>Board view for pipeline:</strong> Drag cards between columns to instantly update a lead's stage — score updates on the next load.</div></div>
+      <div class="help-tip"><div class="help-tip-icon">📥</div><div class="help-tip-text"><strong>Export CSV</strong> includes all fields including follow-up date, deal value, and source for offline analysis.</div></div>
+    </div>
+
+  </div>
+  <div class="help-footer"><span style="color:var(--accent);font-weight:700;">evo</span><span style="color:var(--accent2);font-weight:700;">AI</span> &nbsp;Lead Manager</div>
+</div>
 
 <!-- TOAST -->
 <div id="toast"><span class="toast-dot"></span><span id="toastMsg"></span></div>
@@ -1321,7 +1472,7 @@ function renderTable() {
   const pagination = document.getElementById('pagination');
 
   if (!filteredLeads.length) {
-    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state">
       <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <p>No leads found.</p></div></td></tr>`;
     pagination.style.display = 'none';
@@ -1349,6 +1500,7 @@ function renderTable() {
       <td style="font-size:.76rem;color:var(--muted)">${esc(l.industry||'—')}</td>
       <td style="font-size:.78rem">${esc(l.service||'—')}</td>
       <td>${statusBadge(l.status)}</td>
+      <td>${scoreBadge(computeScore(l))}</td>
       <td style="font-family:var(--mono);font-size:.74rem;color:var(--accent);font-weight:600;">${l.dealvalue ? '$' + Number(l.dealvalue).toLocaleString('en-US') : '<span style="color:var(--border)">—</span>'}</td>
       <td>
         <div class="row-actions">
@@ -1826,6 +1978,25 @@ document.addEventListener('keydown', e => {
 function fmtDate(val) {
   if (!val) return '';
   return String(val).slice(0, 10); // handles both YYYY-MM-DD and ISO timestamps
+}
+
+/* ── SCORING ── */
+function computeScore(lead) {
+  let s = 0;
+  if (lead.email)    s += 10;
+  if (lead.phone)    s += 15;
+  if (lead.company)  s += 10;
+  if (lead.linkedin) s += 10;
+  const stageScore = { 'New':5,'Contacted':15,'Discovery Call':25,'Qualified':40,'Proposal Sent':55,'Negotiation':70,'Won':100,'Lost':0 };
+  s += stageScore[lead.status] || 5;
+  if (lead.service)   s += 10;
+  if (lead.dealvalue) s += Math.min(20, Math.floor(Number(String(lead.dealvalue).replace(/[^0-9.]/g,'')) / 5000));
+  return Math.min(100, s);
+}
+function scoreBadge(score) {
+  if (score >= 60) return `<span class="score-badge score-hot"><span class="score-dot"></span> HOT ${score}</span>`;
+  if (score >= 35) return `<span class="score-badge score-warm"><span class="score-dot"></span> WARM ${score}</span>`;
+  return `<span class="score-badge score-cold"><span class="score-dot"></span> COLD ${score}</span>`;
 }
 
 function statusBadge(s) {
