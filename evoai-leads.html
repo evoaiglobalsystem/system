@@ -822,6 +822,10 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.845v6.31a1 1 0 0 1-1.447.894L15 14"/><rect x="1" y="6" width="14" height="12" rx="2"/></svg>
           Demo Requests <span class="aside-count" id="cnt-demo">—</span>
         </div>
+        <div class="aside-item" onclick="filterFollowUp(this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Follow Up Dues <span class="aside-count" id="cnt-followup">—</span>
+        </div>
       </div>
 
     </div>
@@ -1121,6 +1125,7 @@ let allLeads      = [];
 let filteredLeads = [];
 let currentFilter = 'ALL';
 let currentSourceFilter = '';
+let currentFollowUpFilter = false;
 let currentView   = 'table';
 let editingLeadId = null;
 let searchTimer   = null;
@@ -1230,6 +1235,17 @@ async function doSearch(q) {
 function filterSource(source, el) {
   currentSourceFilter = source;
   currentFilter = 'ALL';
+  currentFollowUpFilter = false;
+  document.querySelectorAll('.aside-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('statusFilter').value = '';
+  applyFilters();
+}
+
+function filterFollowUp(el) {
+  currentFollowUpFilter = true;
+  currentSourceFilter = '';
+  currentFilter = 'ALL';
   document.querySelectorAll('.aside-item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('statusFilter').value = '';
@@ -1240,6 +1256,7 @@ function filterSource(source, el) {
 function filterStatus(status, el) {
   currentFilter = status;
   currentSourceFilter = '';
+  currentFollowUpFilter = false;
   document.querySelectorAll('.aside-item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('statusFilter').value = '';
@@ -1255,11 +1272,13 @@ function applyFilters() {
   if (statusDrop) {
     currentFilter = 'ALL';
     currentSourceFilter = '';
+    currentFollowUpFilter = false;
     document.querySelectorAll('.aside-item').forEach(i => i.classList.remove('active'));
     const allItem = document.querySelector('.aside-item[onclick*="ALL"]');
     if (allItem) allItem.classList.add('active');
   }
 
+  const today = new Date().toISOString().slice(0, 10);
   const effectiveStatus = statusDrop || (currentFilter !== 'ALL' ? currentFilter : '');
 
   filteredLeads = allLeads.filter(l => {
@@ -1268,7 +1287,8 @@ function applyFilters() {
     const matchIndustry = !industryDrop         || l.industry === industryDrop;
     const matchSource   = !currentSourceFilter  || l.source  === currentSourceFilter;
     const matchQ        = !q                    || JSON.stringify(l).toLowerCase().includes(q);
-    return matchStatus && matchService && matchIndustry && matchSource && matchQ;
+    const matchFollowUp = !currentFollowUpFilter || (fmtDate(l.followupdate) && fmtDate(l.followupdate) <= today && l.status !== 'Won' && l.status !== 'Lost');
+    return matchStatus && matchService && matchIndustry && matchSource && matchQ && matchFollowUp;
   });
   currentPage = 1;
   listPage = 1;
@@ -1666,6 +1686,7 @@ function updateCounts() {
   // Follow-ups due: followupdate <= today (overdue or due today)
   const today = new Date().toISOString().slice(0, 10);
   const dueCount = allLeads.filter(l => fmtDate(l.followupdate) && fmtDate(l.followupdate) <= today && l.status !== 'Won' && l.status !== 'Lost').length;
+  document.getElementById('cnt-followup').textContent = dueCount;
   document.getElementById('s-followup').textContent = dueCount > 0 ? dueCount : '0';
 }
 
