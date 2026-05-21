@@ -800,6 +800,14 @@
       </div>
 
       <div class="aside-section" style="margin-top:12px;">
+        <div class="aside-label">Quick Filters</div>
+        <div class="aside-item" onclick="filterSource('Demo Request',this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l4.553-2.069A1 1 0 0 1 21 8.845v6.31a1 1 0 0 1-1.447.894L15 14"/><rect x="1" y="6" width="14" height="12" rx="2"/></svg>
+          Demo Requests <span class="aside-count" id="cnt-demo">—</span>
+        </div>
+      </div>
+
+      <div class="aside-section" style="margin-top:12px;">
         <div class="aside-label">Actions</div>
         <div class="aside-item" onclick="openCreate()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1066,7 +1074,7 @@
         <div class="field"><label>Source</label>    <input type="text" id="f-source" placeholder="Website / LinkedIn / Referral…"/></div>
         <div class="field"><label>Page / URL</label><input type="text" id="f-page"   placeholder="/services"/></div>
         <div class="field">
-          <label>Deal Value (₹ / $)</label>
+          <label>Deal Value ($)</label>
           <input type="text" id="f-dealvalue" placeholder="e.g. 150000"/>
         </div>
         <div class="field">
@@ -1113,6 +1121,7 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzKzyY1UkosdQBsowMx-
 let allLeads      = [];
 let filteredLeads = [];
 let currentFilter = 'ALL';
+let currentSourceFilter = '';
 let currentView   = 'table';
 let editingLeadId = null;
 let searchTimer   = null;
@@ -1219,9 +1228,19 @@ async function doSearch(q) {
   renderCurrentView();
 }
 
+function filterSource(source, el) {
+  currentSourceFilter = source;
+  currentFilter = 'ALL';
+  document.querySelectorAll('.aside-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('statusFilter').value = '';
+  applyFilters();
+}
+
 /* ── FILTERS ── */
 function filterStatus(status, el) {
   currentFilter = status;
+  currentSourceFilter = '';
   document.querySelectorAll('.aside-item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('statusFilter').value = '';
@@ -1236,6 +1255,7 @@ function applyFilters() {
 
   if (statusDrop) {
     currentFilter = 'ALL';
+    currentSourceFilter = '';
     document.querySelectorAll('.aside-item').forEach(i => i.classList.remove('active'));
     const allItem = document.querySelector('.aside-item[onclick*="ALL"]');
     if (allItem) allItem.classList.add('active');
@@ -1244,11 +1264,12 @@ function applyFilters() {
   const effectiveStatus = statusDrop || (currentFilter !== 'ALL' ? currentFilter : '');
 
   filteredLeads = allLeads.filter(l => {
-    const matchStatus   = !effectiveStatus  || l.status   === effectiveStatus;
-    const matchService  = !serviceDrop      || l.service  === serviceDrop;
-    const matchIndustry = !industryDrop     || l.industry === industryDrop;
-    const matchQ        = !q               || JSON.stringify(l).toLowerCase().includes(q);
-    return matchStatus && matchService && matchIndustry && matchQ;
+    const matchStatus   = !effectiveStatus      || l.status === effectiveStatus;
+    const matchService  = !serviceDrop          || l.service  === serviceDrop;
+    const matchIndustry = !industryDrop         || l.industry === industryDrop;
+    const matchSource   = !currentSourceFilter  || l.source  === currentSourceFilter;
+    const matchQ        = !q                    || JSON.stringify(l).toLowerCase().includes(q);
+    return matchStatus && matchService && matchIndustry && matchSource && matchQ;
   });
   currentPage = 1;
   listPage = 1;
@@ -1311,7 +1332,7 @@ function renderTable() {
       <td style="font-size:.76rem;color:var(--muted)">${esc(l.industry||'—')}</td>
       <td style="font-size:.78rem">${esc(l.service||'—')}</td>
       <td>${statusBadge(l.status)}</td>
-      <td style="font-family:var(--mono);font-size:.74rem;color:var(--accent);font-weight:600;">${l.dealvalue ? '₹ ' + Number(l.dealvalue).toLocaleString('en-IN') : '<span style="color:var(--border)">—</span>'}</td>
+      <td style="font-family:var(--mono);font-size:.74rem;color:var(--accent);font-weight:600;">${l.dealvalue ? '$' + Number(l.dealvalue).toLocaleString('en-US') : '<span style="color:var(--border)">—</span>'}</td>
       <td style="font-size:.73rem;font-family:var(--mono);color:${l.followupdate && l.followupdate <= new Date().toISOString().slice(0,10) ? 'var(--warn)' : 'var(--muted)'};">${esc(l.followupdate||'—')}</td>
       <td style="font-size:.73rem;color:var(--muted);font-family:var(--mono)">${esc(String(l.date||''))}</td>
       <td>
@@ -1432,7 +1453,7 @@ function createBoardCard(l) {
     </div>
     ${(function(){
       const today = new Date().toISOString().slice(0,10);
-      const dv = l.dealvalue ? '<span style="font-family:var(--mono);font-size:.62rem;color:var(--accent);font-weight:600;">&#8377; ' + Number(l.dealvalue).toLocaleString('en-IN') + '</span>' : '';
+      const dv = l.dealvalue ? '<span style="font-family:var(--mono);font-size:.62rem;color:var(--accent);font-weight:600;">$' + Number(l.dealvalue).toLocaleString('en-US') + '</span>' : '';
       const fu = l.followupdate ? '<span style="font-family:var(--mono);font-size:.60rem;color:' + (l.followupdate <= today ? 'var(--warn)' : 'var(--muted)') + ';" title="Follow-up">\uD83D\uDCC5 ' + esc(l.followupdate) + '</span>' : '';
       if (dv || fu) return '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">' + dv + fu + '</div>';
       return '';
@@ -1554,7 +1575,7 @@ function renderList() {
       <!-- col 5: status -->
       <div>${statusBadge(l.status)}</div>
       <!-- col 6: deal value -->
-      <div style="font-family:var(--mono);font-size:.72rem;color:var(--accent);font-weight:600;">${l.dealvalue ? '₹ ' + Number(l.dealvalue).toLocaleString('en-IN') : '<span style="opacity:.3">—</span>'}</div>
+      <div style="font-family:var(--mono);font-size:.72rem;color:var(--accent);font-weight:600;">${l.dealvalue ? '$' + Number(l.dealvalue).toLocaleString('en-US') : '<span style="opacity:.3">—</span>'}</div>
       <!-- col 7: follow-up date -->
       <div style="font-family:var(--mono);font-size:.68rem;color:${l.followupdate && l.followupdate <= new Date().toISOString().slice(0,10) ? 'var(--warn)' : 'var(--muted)'};">${esc(l.followupdate||'—')}</div>
       <!-- col 8: actions -->
@@ -1628,12 +1649,12 @@ function updateCounts() {
   document.getElementById('s-qual').textContent  = count('Qualified');
   document.getElementById('s-won').textContent   = count('Won');
 
-  // Pipeline value: sum dealvalue for all non-Lost leads
+  document.getElementById('cnt-demo').textContent = allLeads.filter(l => l.source === 'Demo Request').length;
   const pipelineTotal = allLeads
     .filter(l => l.status !== 'Lost' && l.dealvalue)
     .reduce((sum, l) => sum + (parseFloat(String(l.dealvalue).replace(/[^0-9.]/g,'')) || 0), 0);
   document.getElementById('s-pipeline').textContent =
-    pipelineTotal > 0 ? '₹ ' + Math.round(pipelineTotal).toLocaleString('en-IN') : '—';
+    pipelineTotal > 0 ? '$' + Math.round(pipelineTotal).toLocaleString('en-US') : '—';
 
   // Follow-ups due: followupdate <= today (overdue or due today)
   const today = new Date().toISOString().slice(0, 10);
@@ -1747,7 +1768,7 @@ function viewLead(leadId) {
   document.getElementById('viewBody').innerHTML =
     section('Contact Information', [['Name',lead.name],['Email',lead.email],['Phone',lead.phone],['LinkedIn',lead.linkedin,true]]) +
     section('Company', [['Company',lead.company],['Job Title',lead.jobtitle],['Industry',lead.industry]]) +
-    section('Lead Details', [['Status',lead.status],['Service',lead.service],['Source',lead.source],['Page',lead.page],['Date',lead.date],['Deal Value',lead.dealvalue ? '₹ ' + Number(lead.dealvalue).toLocaleString('en-IN') : ''],['Follow-up Date',lead.followupdate]]) +
+    section('Lead Details', [['Status',lead.status],['Service',lead.service],['Source',lead.source],['Page',lead.page],['Date',lead.date],['Deal Value',lead.dealvalue ? '$' + Number(lead.dealvalue).toLocaleString('en-US') : ''],['Follow-up Date',lead.followupdate]]) +
     section('Notes', [['Message',lead.message],['Comments',lead.comments]]);
   document.getElementById('viewOverlay').classList.add('open');
 }
