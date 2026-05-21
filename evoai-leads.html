@@ -1430,10 +1430,13 @@ function createBoardCard(l) {
       <span class="board-card-service">${esc(l.service||'—')}</span>
       <span class="board-card-date">${esc(String(l.date||'').slice(0,10))}</span>
     </div>
-    ${l.dealvalue ? `<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
-      <span style="font-family:var(--mono);font-size:.62rem;color:var(--accent);font-weight:600;">₹ ${Number(l.dealvalue).toLocaleString('en-IN')}</span>
-      ${l.followupdate ? `<span style="font-family:var(--mono);font-size:.60rem;color:${l.followupdate <= new Date().toISOString().slice(0,10) ? 'var(--warn)' : 'var(--muted)'};" title="Follow-up">📅 ${esc(l.followupdate)}</span>` : ''}
-    </div>` : l.followupdate ? `<div style="margin-top:6px;font-family:var(--mono);font-size:.60rem;color:${l.followupdate <= new Date().toISOString().slice(0,10) ? 'var(--warn)' : 'var(--muted)'};">📅 ${esc(l.followupdate)}</div>` : ''}`;
+    ${(function(){
+      const today = new Date().toISOString().slice(0,10);
+      const dv = l.dealvalue ? '<span style="font-family:var(--mono);font-size:.62rem;color:var(--accent);font-weight:600;">&#8377; ' + Number(l.dealvalue).toLocaleString('en-IN') + '</span>' : '';
+      const fu = l.followupdate ? '<span style="font-family:var(--mono);font-size:.60rem;color:' + (l.followupdate <= today ? 'var(--warn)' : 'var(--muted)') + ';" title="Follow-up">\uD83D\uDCC5 ' + esc(l.followupdate) + '</span>' : '';
+      if (dv || fu) return '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">' + dv + fu + '</div>';
+      return '';
+    })()}`;
 
   let didDrag = false;
   card.addEventListener('dragstart', e => {
