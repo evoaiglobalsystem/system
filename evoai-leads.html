@@ -290,6 +290,17 @@
   .badge-won         { background: rgba(55,138,221,.25);  color: #E8F4FF;  border: 1px solid rgba(55,138,221,.5); }
   .badge-lost        { background: rgba(237,147,177,.15); color: #ED93B1;  border: 1px solid rgba(237,147,177,.35); }
 
+  /* ── RATING BADGES ── */
+  .rating-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 9px; border-radius: 20px;
+    font-size: .64rem; font-weight: 700; letter-spacing: .06em;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .rating-hot  { background: rgba(239,100,80,.15);  color: #ff7c62;  border: 1px solid rgba(239,100,80,.35); }
+  .rating-warm { background: rgba(239,159,39,.13);  color: #EF9F27;  border: 1px solid rgba(239,159,39,.35); }
+  .rating-cold { background: rgba(133,183,235,.10); color: #85B7EB;  border: 1px solid rgba(133,183,235,.28); }
+
   /* ── ACTION BUTTONS ── */
   .row-actions { display: flex; gap: 5px; }
   .icon-btn {
@@ -681,7 +692,128 @@
   /* col 7: actions */
   .list-item-actions { display: flex; gap: 5px; flex-shrink: 0; }
 
-  /* ── RESPONSIVE ── */
+  /* ── HELP VIEW ── */
+  #helpView { display: none; }
+  .help-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+  }
+  .help-hero {
+    background: linear-gradient(135deg, #042C53 0%, #071E33 60%, rgba(55,138,221,.08) 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 36px 28px;
+    position: relative; overflow: hidden;
+  }
+  .help-hero::before {
+    content: '';
+    position: absolute; top: -40px; right: -40px;
+    width: 200px; height: 200px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(55,138,221,.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .help-hero-title {
+    font-size: 1.3rem; font-weight: 700; letter-spacing: -.02em;
+    color: var(--text); margin-bottom: 8px;
+  }
+  .help-hero-sub { font-size: .82rem; color: var(--muted); line-height: 1.6; max-width: 560px; }
+
+  .help-rating-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    padding: 28px 36px; border-bottom: 1px solid var(--border);
+  }
+  .help-rating-card {
+    border-radius: 10px; padding: 20px 22px;
+    border: 1px solid; position: relative; overflow: hidden;
+  }
+  .help-rating-card::after {
+    content: ''; position: absolute; bottom: -18px; right: -18px;
+    width: 80px; height: 80px; border-radius: 50%;
+    opacity: .06; pointer-events: none;
+  }
+  .help-rating-card.hot  { background: rgba(239,100,80,.06); border-color: rgba(239,100,80,.25); }
+  .help-rating-card.hot::after  { background: #ff7c62; }
+  .help-rating-card.warm { background: rgba(239,159,39,.06); border-color: rgba(239,159,39,.25); }
+  .help-rating-card.warm::after { background: #EF9F27; }
+  .help-rating-card.cold { background: rgba(133,183,235,.05); border-color: rgba(133,183,235,.2); }
+  .help-rating-card.cold::after { background: #85B7EB; }
+  .help-rating-dot { font-size: 1.3rem; margin-bottom: 8px; }
+  .help-rating-label {
+    font-size: .78rem; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .help-rating-card.hot  .help-rating-label { color: #ff7c62; }
+  .help-rating-card.warm .help-rating-label { color: #EF9F27; }
+  .help-rating-card.cold .help-rating-label { color: #85B7EB; }
+  .help-rating-range {
+    font-family: var(--mono); font-size: 1.4rem; font-weight: 700;
+    color: var(--text); margin-bottom: 8px; letter-spacing: -.02em;
+  }
+  .help-rating-desc { font-size: .75rem; color: var(--muted); line-height: 1.55; }
+
+  .help-body { padding: 28px 36px; }
+  .help-section-title {
+    font-size: .68rem; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 16px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .help-attr-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+    margin-bottom: 32px;
+  }
+  .help-attr-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 9px; padding: 16px 18px;
+    transition: border-color .15s;
+  }
+  .help-attr-card:hover { border-color: rgba(55,138,221,.35); }
+  .help-attr-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .help-attr-name {
+    font-size: .78rem; font-weight: 700; color: var(--text);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .help-attr-pts {
+    font-family: var(--mono); font-size: .72rem; font-weight: 700;
+    color: var(--accent); background: rgba(55,138,221,.1);
+    border: 1px solid rgba(55,138,221,.25); border-radius: 5px;
+    padding: 2px 8px; flex-shrink: 0;
+  }
+  .help-attr-rows { display: flex; flex-direction: column; gap: 5px; }
+  .help-attr-row {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: .73rem; padding: 4px 0;
+    border-bottom: 1px solid rgba(24,95,165,.18);
+  }
+  .help-attr-row:last-child { border-bottom: none; }
+  .help-attr-row-label { color: var(--muted); }
+  .help-attr-row-val {
+    font-family: var(--mono); font-weight: 700; font-size: .7rem;
+    color: var(--text);
+  }
+  .help-attr-row-val.max  { color: #ff7c62; }
+  .help-attr-row-val.high { color: #EF9F27; }
+  .help-attr-row-val.mid  { color: var(--accent); }
+  .help-attr-row-val.low  { color: var(--muted); }
+
+  .help-tip-box {
+    background: rgba(55,138,221,.06); border: 1px solid rgba(55,138,221,.2);
+    border-radius: 9px; padding: 16px 20px;
+    display: flex; gap: 14px; align-items: flex-start;
+    margin-bottom: 16px;
+  }
+  .help-tip-icon { color: var(--accent); flex-shrink: 0; margin-top: 1px; }
+  .help-tip-text { font-size: .78rem; color: var(--muted); line-height: 1.65; }
+  .help-tip-text strong { color: var(--text); font-weight: 600; }
+
+  /* ── RESPONSIVE HELP ── */
+  @media (max-width: 960px) {
+    .help-rating-row  { grid-template-columns: 1fr; padding: 20px 18px; }
+    .help-attr-grid   { grid-template-columns: 1fr; }
+    .help-hero, .help-body { padding: 20px 18px; }
+  }
   @media (max-width: 1100px) {
     /* hide industry column on medium screens */
     .list-header,
@@ -828,6 +960,31 @@
         </div>
       </div>
 
+      <div class="aside-section" style="margin-top:12px;">
+        <div class="aside-label">Lead Rating</div>
+        <div class="aside-item" onclick="filterRating('Hot',this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff7c62" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#ff7c62" stroke="none"><path d="M12 23a7.5 7.5 0 0 1-5.138-12.963C8.204 8.774 11.5 6.5 11 1.5c6 4 9 8 3 14 1 0 2.5 0 3-1.5.5 1 .5 2 .5 3A7.5 7.5 0 0 1 12 23z"/></svg>
+          Hot <span class="aside-count" id="cnt-hot" style="background:rgba(239,100,80,.12);border-color:rgba(239,100,80,.3);color:#ff7c62;">—</span>
+        </div>
+        <div class="aside-item" onclick="filterRating('Warm',this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#EF9F27" stroke="none"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27z"/></svg>
+          Warm <span class="aside-count" id="cnt-warm" style="background:rgba(239,159,39,.12);border-color:rgba(239,159,39,.3);color:#EF9F27;">—</span>
+        </div>
+        <div class="aside-item" onclick="filterRating('Cold',this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#85B7EB" stroke-width="2"><path d="M12 2v20M4.93 4.93l14.14 14.14M2 12h20M4.93 19.07l14.14-14.14"/></svg>
+          Cold <span class="aside-count" id="cnt-cold" style="background:rgba(133,183,235,.1);border-color:rgba(133,183,235,.25);color:#85B7EB;">—</span>
+        </div>
+      </div>
+
+      <div class="aside-section" style="margin-top:12px;">
+        <div class="aside-label">Support</div>
+        <div class="aside-item" onclick="showHelp(this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          How Scoring Works
+        </div>
+      </div>
+
     </div>
 
   </aside>
@@ -955,6 +1112,7 @@
               <th>Industry</th>
               <th>Service</th>
               <th>Status</th>
+              <th>Rating</th>
               <th>Deal Value</th>
               <th>Follow-up</th>
               <th>Date</th>
@@ -1004,9 +1162,200 @@
       </div>
     </div>
 
-  </main>
+    <!-- HELP VIEW -->
+    <div id="helpView">
+      <div class="help-wrap">
 
-</div>
+        <!-- Hero -->
+        <div class="help-hero">
+          <div class="help-hero-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" style="vertical-align:-3px;margin-right:8px;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            How Lead Scoring Works
+          </div>
+          <div class="help-hero-sub">Every lead is automatically scored out of <strong style="color:var(--text);">100 points</strong> based on six attributes pulled directly from their profile. The score updates in real time — no manual input needed. Scores are used to assign a <strong style="color:var(--text);">Hot, Warm, or Cold</strong> rating visible across the table, board, and lead detail views.</div>
+        </div>
+
+        <!-- Rating tiers -->
+        <div class="help-rating-row">
+          <div class="help-rating-card hot">
+            <div class="help-rating-dot">🔴</div>
+            <div class="help-rating-label">Hot</div>
+            <div class="help-rating-range">65 – 100</div>
+            <div class="help-rating-desc">High intent, well-qualified lead. Strong pipeline stage, clear budget signal, and detailed outreach. Prioritise immediately — these are your most closeable opportunities.</div>
+          </div>
+          <div class="help-rating-card warm">
+            <div class="help-rating-dot">🟡</div>
+            <div class="help-rating-label">Warm</div>
+            <div class="help-rating-range">35 – 64</div>
+            <div class="help-rating-desc">Moderate engagement with some qualifying signals. May be missing deal value, profile info, or still early in the pipeline. Nurture with follow-ups to move them into the Hot zone.</div>
+          </div>
+          <div class="help-rating-card cold">
+            <div class="help-rating-dot">🔵</div>
+            <div class="help-rating-label">Cold</div>
+            <div class="help-rating-range">0 – 34</div>
+            <div class="help-rating-desc">Low engagement or sparse profile. Often new inbounds with minimal context. Update the profile — adding company, job title, deal value, or a follow-up date can quickly move them up.</div>
+          </div>
+        </div>
+
+        <!-- Attribute breakdown -->
+        <div class="help-body">
+          <div class="help-section-title">Scoring Breakdown — 6 Attributes</div>
+          <div class="help-attr-grid">
+
+            <!-- Pipeline Stage -->
+            <div class="help-attr-card">
+              <div class="help-attr-head">
+                <div class="help-attr-name">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                  Pipeline Stage
+                </div>
+                <span class="help-attr-pts">25 pts</span>
+              </div>
+              <div class="help-attr-rows">
+                <div class="help-attr-row"><span class="help-attr-row-label">Negotiation</span><span class="help-attr-row-val max">25</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">Proposal Sent</span><span class="help-attr-row-val max">22</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">Qualified</span><span class="help-attr-row-val high">18</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">Discovery Call</span><span class="help-attr-row-val mid">12</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">Contacted</span><span class="help-attr-row-val low">6</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">New</span><span class="help-attr-row-val low">2</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">Won / Lost</span><span class="help-attr-row-val low">0</span></div>
+              </div>
+            </div>
+
+            <!-- Source Intent -->
+            <div class="help-attr-card">
+              <div class="help-attr-head">
+                <div class="help-attr-name">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  Source Intent
+                </div>
+                <span class="help-attr-pts">20 pts</span>
+              </div>
+              <div class="help-attr-rows">
+                <div class="help-attr-row"><span class="help-attr-row-label">Demo Request</span><span class="help-attr-row-val max">20</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">Referral</span><span class="help-attr-row-val max">18</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">Organic / Website</span><span class="help-attr-row-val mid">12</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">LinkedIn</span><span class="help-attr-row-val low">8</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">Other (any source)</span><span class="help-attr-row-val low">4</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">Blank</span><span class="help-attr-row-val low">0</span></div>
+              </div>
+            </div>
+
+            <!-- Deal Value -->
+            <div class="help-attr-card">
+              <div class="help-attr-head">
+                <div class="help-attr-name">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                  Deal Value
+                </div>
+                <span class="help-attr-pts">20 pts</span>
+              </div>
+              <div class="help-attr-rows">
+                <div class="help-attr-row"><span class="help-attr-row-label">$50,000 or above</span><span class="help-attr-row-val max">20</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">$20,000 – $49,999</span><span class="help-attr-row-val max">16</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">$10,000 – $19,999</span><span class="help-attr-row-val high">12</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">$5,000 – $9,999</span><span class="help-attr-row-val mid">8</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">$1,000 – $4,999</span><span class="help-attr-row-val low">4</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">Under $1,000</span><span class="help-attr-row-val low">2</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">Not set</span><span class="help-attr-row-val low">0</span></div>
+              </div>
+            </div>
+
+            <!-- Profile Completeness -->
+            <div class="help-attr-card">
+              <div class="help-attr-head">
+                <div class="help-attr-name">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Profile Completeness
+                </div>
+                <span class="help-attr-pts">15 pts</span>
+              </div>
+              <div class="help-attr-rows">
+                <div class="help-attr-row"><span class="help-attr-row-label">Phone number filled</span><span class="help-attr-row-val mid">+3</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">Company filled</span><span class="help-attr-row-val mid">+3</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">Job title filled</span><span class="help-attr-row-val mid">+3</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">LinkedIn filled</span><span class="help-attr-row-val mid">+3</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">Industry selected</span><span class="help-attr-row-val mid">+3</span></div>
+              </div>
+            </div>
+
+            <!-- Follow-up Urgency -->
+            <div class="help-attr-card">
+              <div class="help-attr-head">
+                <div class="help-attr-name">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  Follow-up Urgency
+                </div>
+                <span class="help-attr-pts">10 pts</span>
+              </div>
+              <div class="help-attr-rows">
+                <div class="help-attr-row"><span class="help-attr-row-label">Overdue (past date)</span><span class="help-attr-row-val max">10</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">Due today</span><span class="help-attr-row-val max">9</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">Within 3 days</span><span class="help-attr-row-val high">7</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">Within 7 days</span><span class="help-attr-row-val mid">5</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">Set but further out</span><span class="help-attr-row-val low">2</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">No follow-up set</span><span class="help-attr-row-val low">0</span></div>
+              </div>
+            </div>
+
+            <!-- Message Quality -->
+            <div class="help-attr-card">
+              <div class="help-attr-head">
+                <div class="help-attr-name">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  Message Quality
+                </div>
+                <span class="help-attr-pts">10 pts</span>
+              </div>
+              <div class="help-attr-rows">
+                <div class="help-attr-row"><span class="help-attr-row-label">Message + Comments both filled</span><span class="help-attr-row-val max">10</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">Either message or comments</span><span class="help-attr-row-val mid">5</span></div>
+                <div class="help-attr-row"><span class="help-attr-row-label">Both blank</span><span class="help-attr-row-val low">0</span></div>
+              </div>
+              <div style="margin-top:10px;font-size:.7rem;color:var(--muted);line-height:1.5;padding-top:8px;border-top:1px solid rgba(24,95,165,.2);">Message must be &gt;20 chars and comments &gt;10 chars to qualify.</div>
+            </div>
+
+          </div><!-- end help-attr-grid -->
+
+          <!-- Tips -->
+          <div class="help-section-title">Tips to Improve a Lead's Rating</div>
+
+          <div class="help-tip-box">
+            <div class="help-tip-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="help-tip-text"><strong>Fill in the full profile.</strong> A lead with phone, company, job title, LinkedIn, and industry selected earns 15 free points before any other signal is considered. It takes 30 seconds to move a Cold lead to Warm.</div>
+          </div>
+
+          <div class="help-tip-box">
+            <div class="help-tip-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="help-tip-text"><strong>Always set a follow-up date.</strong> An overdue or imminent follow-up is worth up to 10 points. A lead with no follow-up date scores 0 on urgency — even if everything else is strong.</div>
+          </div>
+
+          <div class="help-tip-box">
+            <div class="help-tip-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div class="help-tip-text"><strong>Add a deal value.</strong> Even a rough estimate helps — a $5k deal value is worth 8 points. Leaving it blank scores 0. The score updates the moment you save the lead.</div>
+          </div>
+
+          <div class="help-tip-box">
+            <div class="help-tip-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div class="help-tip-text"><strong>Log notes in Comments.</strong> Adding internal notes after a call gives 5 bonus points on message quality. Combined with a message from the lead, that's the full 10.</div>
+          </div>
+
+          <div style="margin-top:28px;padding:16px 20px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;font-size:.74rem;color:var(--muted);line-height:1.6;">
+            <strong style="color:var(--text);display:block;margin-bottom:6px;">How the score is calculated</strong>
+            Scoring runs entirely in your browser — there are no API calls, no delays, and no manual triggers. Every time leads load or are refreshed, all six attributes are re-evaluated and the badge updates automatically. Scores are not stored — they reflect the current state of the lead profile at the time of viewing.
+          </div>
+
+        </div><!-- end help-body -->
+      </div><!-- end help-wrap -->
+    </div><!-- end helpView -->
 
 <!-- CREATE / EDIT MODAL -->
 <div class="overlay" id="formOverlay">
@@ -1129,11 +1478,84 @@ let currentFollowUpFilter = false;
 let currentView   = 'table';
 let editingLeadId = null;
 let searchTimer   = null;
+let currentRatingFilter  = '';
 let currentPage   = 1;
 let listPage      = 1;
 const PAGE_SIZE   = 15;
 
-/* ── BOARD CONFIG ── */
+/* ── LEAD RATING ENGINE ── */
+function scoreLead(l) {
+  let score = 0;
+
+  // 1. Pipeline Stage (25 pts)
+  const stageScore = {
+    'Negotiation':   25, 'Proposal Sent': 22, 'Qualified':     18,
+    'Discovery Call': 12, 'Contacted':      6,  'New':            2,
+    'Won':            0,  'Lost':            0
+  };
+  score += stageScore[l.status] || 0;
+
+  // 2. Source Intent (20 pts) — case-insensitive partial match
+  const src = (l.source || '').toLowerCase();
+  if      (src.includes('demo'))     score += 20;
+  else if (src.includes('referral')) score += 18;
+  else if (src.includes('organic') || src.includes('website')) score += 12;
+  else if (src.includes('linkedin')) score += 8;
+  else if (src.length > 0)           score += 4;
+  // blank = 0
+
+  // 3. Deal Value (20 pts) — scaled
+  const dv = parseFloat(String(l.dealvalue || '').replace(/[^0-9.]/g, '')) || 0;
+  if      (dv >= 50000) score += 20;
+  else if (dv >= 20000) score += 16;
+  else if (dv >= 10000) score += 12;
+  else if (dv >= 5000)  score += 8;
+  else if (dv >= 1000)  score += 4;
+  else if (dv > 0)      score += 2;
+
+  // 4. Profile Completeness (15 pts — 3 each)
+  if ((l.phone    || '').trim()) score += 3;
+  if ((l.company  || '').trim()) score += 3;
+  if ((l.jobtitle || '').trim()) score += 3;
+  if ((l.linkedin || '').trim()) score += 3;
+  if ((l.industry || '').trim()) score += 3;
+
+  // 5. Follow-up Urgency (10 pts)
+  const fu = fmtDate(l.followupdate);
+  if (fu) {
+    const today    = new Date().toISOString().slice(0,10);
+    const diffDays = Math.ceil((new Date(fu) - new Date(today)) / 86400000);
+    if      (diffDays <  0) score += 10; // overdue
+    else if (diffDays === 0) score += 9; // due today
+    else if (diffDays <= 3)  score += 7; // due very soon
+    else if (diffDays <= 7)  score += 5; // due this week
+    else                     score += 2; // set but future
+  }
+
+  // 6. Message Quality (10 pts)
+  const hasMsg  = (l.message  || '').trim().length > 20;
+  const hasCom  = (l.comments || '').trim().length > 10;
+  if      (hasMsg && hasCom) score += 10;
+  else if (hasMsg || hasCom) score += 5;
+
+  return Math.min(score, 100);
+}
+
+function getLeadRating(l) {
+  const s = scoreLead(l);
+  if (s >= 65) return 'Hot';
+  if (s >= 35) return 'Warm';
+  return 'Cold';
+}
+
+function ratingBadge(l) {
+  const r = getLeadRating(l);
+  const map = { Hot: ['rating-hot','🔴'], Warm: ['rating-warm','🟡'], Cold: ['rating-cold','🔵'] };
+  const [cls, dot] = map[r];
+  return `<span class="rating-badge ${cls}">${dot} ${r}</span>`;
+}
+
+
 const BOARD_STAGES = [
   { key: 'New',           label: 'New',           color: '#64748b' },
   { key: 'Contacted',     label: 'Contacted',      color: '#f59e0b' },
@@ -1236,6 +1658,18 @@ function filterSource(source, el) {
   currentSourceFilter = source;
   currentFilter = 'ALL';
   currentFollowUpFilter = false;
+  currentRatingFilter = '';
+  document.querySelectorAll('.aside-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('statusFilter').value = '';
+  applyFilters();
+}
+
+function filterRating(rating, el) {
+  currentRatingFilter = rating;
+  currentFilter = 'ALL';
+  currentSourceFilter = '';
+  currentFollowUpFilter = false;
   document.querySelectorAll('.aside-item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('statusFilter').value = '';
@@ -1246,6 +1680,7 @@ function filterFollowUp(el) {
   currentFollowUpFilter = true;
   currentSourceFilter = '';
   currentFilter = 'ALL';
+  currentRatingFilter = '';
   document.querySelectorAll('.aside-item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('statusFilter').value = '';
@@ -1257,6 +1692,7 @@ function filterStatus(status, el) {
   currentFilter = status;
   currentSourceFilter = '';
   currentFollowUpFilter = false;
+  currentRatingFilter = '';
   document.querySelectorAll('.aside-item').forEach(i => i.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('statusFilter').value = '';
@@ -1288,7 +1724,8 @@ function applyFilters() {
     const matchSource   = !currentSourceFilter  || l.source  === currentSourceFilter;
     const matchQ        = !q                    || JSON.stringify(l).toLowerCase().includes(q);
     const matchFollowUp = !currentFollowUpFilter || (fmtDate(l.followupdate) && fmtDate(l.followupdate) <= today && l.status !== 'Won' && l.status !== 'Lost');
-    return matchStatus && matchService && matchIndustry && matchSource && matchQ && matchFollowUp;
+    const matchRating   = !currentRatingFilter  || getLeadRating(l) === currentRatingFilter;
+    return matchStatus && matchService && matchIndustry && matchSource && matchQ && matchFollowUp && matchRating;
   });
   currentPage = 1;
   listPage = 1;
@@ -1307,10 +1744,23 @@ function setView(view, btn) {
   renderCurrentView();
 }
 
+function showHelp(el) {
+  currentView = 'help';
+  document.querySelectorAll('.aside-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  // deactivate view toggle buttons
+  document.querySelectorAll('#viewToggle button').forEach(b => {
+    b.style.background = 'transparent';
+    b.style.color = 'var(--muted)';
+  });
+  renderCurrentView();
+}
+
 function renderCurrentView() {
   document.getElementById('tableView').style.display = currentView === 'table' ? 'block' : 'none';
   document.getElementById('boardView').style.display = currentView === 'board' ? 'block' : 'none';
   document.getElementById('listView').style.display  = currentView === 'list'  ? 'block' : 'none';
+  document.getElementById('helpView').style.display  = currentView === 'help'  ? 'block' : 'none';
 
   if (currentView === 'table') renderTable();
   else if (currentView === 'board') renderBoard();
@@ -1323,7 +1773,7 @@ function renderTable() {
   const pagination = document.getElementById('pagination');
 
   if (!filteredLeads.length) {
-    tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state">
+    tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state">
       <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <p>No leads found.</p></div></td></tr>`;
     pagination.style.display = 'none';
@@ -1351,6 +1801,7 @@ function renderTable() {
       <td style="font-size:.76rem;color:var(--muted)">${esc(l.industry||'—')}</td>
       <td style="font-size:.78rem">${esc(l.service||'—')}</td>
       <td>${statusBadge(l.status)}</td>
+      <td>${ratingBadge(l)}</td>
       <td style="font-family:var(--mono);font-size:.74rem;color:var(--accent);font-weight:600;">${l.dealvalue ? '$' + Number(l.dealvalue).toLocaleString('en-US') : '<span style="color:var(--border)">—</span>'}</td>
       <td style="font-size:.73rem;font-family:var(--mono);color:${fmtDate(l.followupdate) && fmtDate(l.followupdate) <= new Date().toISOString().slice(0,10) ? 'var(--warn)' : 'var(--muted)'};">${esc(fmtDate(l.followupdate)||'—')}</td>
       <td style="font-size:.73rem;color:var(--muted);font-family:var(--mono)">${esc(String(l.date||''))}</td>
@@ -1469,6 +1920,7 @@ function createBoardCard(l) {
       <div style="min-width:0;flex:1;">
         <div class="board-card-name">${esc(l.name||'—')}</div>
       </div>
+      ${ratingBadge(l)}
       <div style="width:14px;height:14px;flex-shrink:0;opacity:.3;cursor:grab;" title="Drag to move">
         <svg viewBox="0 0 14 14" fill="currentColor" width="14" height="14"><circle cx="4" cy="3" r="1.2"/><circle cx="10" cy="3" r="1.2"/><circle cx="4" cy="7" r="1.2"/><circle cx="10" cy="7" r="1.2"/><circle cx="4" cy="11" r="1.2"/><circle cx="10" cy="11" r="1.2"/></svg>
       </div>
@@ -1600,7 +2052,7 @@ function renderList() {
         ${phoneHtml}
       </div>
       <!-- col 5: status -->
-      <div>${statusBadge(l.status)}</div>
+      <div style="display:flex;align-items:center;gap:6px;">${statusBadge(l.status)}${ratingBadge(l)}</div>
       <!-- col 6: deal value -->
       <div style="font-family:var(--mono);font-size:.72rem;color:var(--accent);font-weight:600;">${l.dealvalue ? '$' + Number(l.dealvalue).toLocaleString('en-US') : '<span style="opacity:.6">—</span>'}</div>
       <!-- col 7: follow-up date -->
@@ -1677,6 +2129,14 @@ function updateCounts() {
   document.getElementById('s-won').textContent   = count('Won');
 
   document.getElementById('cnt-demo').textContent = allLeads.filter(l => l.source === 'Demo Request').length;
+
+  // Rating counts
+  const hotEl  = document.getElementById('cnt-hot');
+  const warmEl = document.getElementById('cnt-warm');
+  const coldEl = document.getElementById('cnt-cold');
+  if (hotEl)  hotEl.textContent  = allLeads.filter(l => getLeadRating(l) === 'Hot').length;
+  if (warmEl) warmEl.textContent = allLeads.filter(l => getLeadRating(l) === 'Warm').length;
+  if (coldEl) coldEl.textContent = allLeads.filter(l => getLeadRating(l) === 'Cold').length;
   const pipelineTotal = allLeads
     .filter(l => l.status !== 'Lost' && l.dealvalue)
     .reduce((sum, l) => sum + (parseFloat(String(l.dealvalue).replace(/[^0-9.]/g,'')) || 0), 0);
@@ -1786,9 +2246,10 @@ function viewLead(leadId) {
         <div class="view-row">
           <span class="view-key">${k}</span>
           <span class="view-val">${
-            k === 'Status' ? statusBadge(v) :
-            link           ? `<a href="${esc(v)}" target="_blank">${esc(v)}</a>` :
-                             esc(String(v||'—'))
+            k === 'Status'  ? statusBadge(v) :
+            k === 'Rating'  ? (ratingBadge(lead) + `<span style="font-family:var(--mono);font-size:.65rem;color:var(--muted);margin-left:6px;">${scoreLead(lead)}/100</span>`) :
+            link            ? `<a href="${esc(v)}" target="_blank">${esc(v)}</a>` :
+                              esc(String(v||'—'))
           }</span>
         </div>`).join('')}
     </div>`;
@@ -1796,7 +2257,7 @@ function viewLead(leadId) {
   document.getElementById('viewBody').innerHTML =
     section('Contact Information', [['Name',lead.name],['Email',lead.email],['Phone',lead.phone],['LinkedIn',lead.linkedin,true]]) +
     section('Company', [['Company',lead.company],['Job Title',lead.jobtitle],['Industry',lead.industry]]) +
-    section('Lead Details', [['Status',lead.status],['Service',lead.service],['Source',lead.source],['Page',lead.page],['Date',lead.date],['Deal Value',lead.dealvalue ? '$' + Number(lead.dealvalue).toLocaleString('en-US') : ''],['Follow-up Date',fmtDate(lead.followupdate)]]) +
+    section('Lead Details', [['Status',lead.status],['Rating','rated'],['Service',lead.service],['Source',lead.source],['Page',lead.page],['Date',lead.date],['Deal Value',lead.dealvalue ? '$' + Number(lead.dealvalue).toLocaleString('en-US') : ''],['Follow-up Date',fmtDate(lead.followupdate)]]) +
     section('Notes', [['Message',lead.message],['Comments',lead.comments]]);
   document.getElementById('viewOverlay').classList.add('open');
 }
