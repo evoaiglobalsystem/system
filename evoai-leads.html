@@ -709,9 +709,17 @@
 
   /* col 1: contact */
   .list-item-contact { min-width: 0; }
+  .list-tier-dot {
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    flex-shrink: 0; margin-right: 6px; vertical-align: middle;
+  }
+  .list-tier-dot.hot  { background: #ff4d6d; box-shadow: 0 0 5px rgba(255,77,109,.55); }
+  .list-tier-dot.warm { background: #ffb730; box-shadow: 0 0 5px rgba(255,183,48,.45); }
+  .list-tier-dot.cold { background: #64b4ff; box-shadow: 0 0 4px rgba(100,180,255,.4); }
   .list-item-name {
     font-size: .84rem; font-weight: 600; color: var(--text);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    display: flex; align-items: center;
   }
   .list-item-email {
     font-size: .71rem; color: var(--muted); margin-top: 2px;
@@ -1748,11 +1756,14 @@ function renderList() {
       ? `<a href="tel:${esc(l.phone)}" onclick="event.stopPropagation()">${esc(l.phone)}</a>`
       : `<span style="opacity:.6">—</span>`;
 
+    const score = computeScore(l);
+    const tier  = score >= 60 ? 'hot' : score >= 35 ? 'warm' : 'cold';
+    const tierTitle = tier === 'hot' ? `HOT (${score})` : tier === 'warm' ? `WARM (${score})` : `COLD (${score})`;
     return `
     <div class="list-item" onclick="viewLead('${esc(l.leadId)}')">
       <!-- col 1: contact -->
       <div class="list-item-contact">
-        <div class="list-item-name">${esc(l.name||'—')}</div>
+        <div class="list-item-name"><span class="list-tier-dot ${tier}" title="${tierTitle}"></span>${esc(l.name||'—')}</div>
         <div class="list-item-email">${esc(l.email||'')}</div>
       </div>
       <!-- col 2: company / role -->
