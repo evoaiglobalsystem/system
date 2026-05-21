@@ -58,7 +58,7 @@
   window.doSignOut = async () => {
     try {
       await signOut(auth);
-      window.location.replace("evoai-login.html");
+      window.location.replace("index.html");
     } catch(e) {
       console.error("Sign out error", e);
     }
