@@ -34,7 +34,7 @@
     authChecked = true;
 
     if (!user) {
-      window.location.replace("evoai-login.html");
+      window.location.replace("index.html");
       return;
     }
 
@@ -1150,7 +1150,7 @@ async function getAuthToken() {
   const auth = window._firebaseAuth;
   if (!auth || !auth.currentUser) {
     toast('Session expired — please sign in again', 'error');
-    setTimeout(() => window.location.replace('evoai-login.html'), 1800);
+    setTimeout(() => window.location.replace('index.html'), 1800);
     return null;
   }
   try {
@@ -1158,7 +1158,7 @@ async function getAuthToken() {
   } catch (e) {
     console.error('Token error', e);
     toast('Could not refresh session — signing out', 'error');
-    setTimeout(() => window.location.replace('evoai-login.html'), 1800);
+    setTimeout(() => window.location.replace('index.html'), 1800);
     return null;
   }
 }
@@ -1171,7 +1171,7 @@ function handleUnauthorized() {
   const tick = setInterval(() => {
     secs--;
     if (countEl) countEl.textContent = secs;
-    if (secs <= 0) { clearInterval(tick); window.location.replace('evoai-login.html'); }
+    if (secs <= 0) { clearInterval(tick); window.location.replace('index.html'); }
   }, 1000);
 }
 
