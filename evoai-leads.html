@@ -585,11 +585,11 @@
     overflow: hidden;
   }
 
-  /* 7-column grid: contact | company/role | industry | phone | status | date | actions */
+  /* 8-column grid: contact | company/role | industry | phone | status | deal value | follow-up | actions */
   .list-header,
   .list-item {
     display: grid;
-    grid-template-columns: 190px 180px 1fr 130px auto 100px auto;
+    grid-template-columns: 190px 180px 1fr 130px auto 110px 100px auto;
     align-items: center;
     gap: 14px;
     padding: 10px 16px;
@@ -670,7 +670,7 @@
     /* hide industry column on medium screens */
     .list-header,
     .list-item {
-      grid-template-columns: 180px 160px 120px auto 90px auto;
+      grid-template-columns: 180px 160px 120px auto 90px 90px auto;
     }
     .list-header span:nth-child(3),
     .list-item .list-item-industry { display: none; }
@@ -848,7 +848,7 @@
       </div>
     </div>
 
-    <div class="stats-row">
+    <div class="stats-row" style="grid-template-columns:repeat(6,1fr)">
       <div class="stat-card">
         <div class="stat-label">Total Leads</div>
         <div class="stat-value" id="s-total">—</div>
@@ -868,6 +868,16 @@
         <div class="stat-label">Won</div>
         <div class="stat-value" id="s-won" style="color:#00c864">—</div>
         <div class="stat-sub">Deals closed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pipeline Value</div>
+        <div class="stat-value" id="s-pipeline" style="color:var(--accent);font-size:1.25rem">—</div>
+        <div class="stat-sub">Open deals (excl. Lost)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Follow-ups Due</div>
+        <div class="stat-value" id="s-followup" style="color:var(--warn)">—</div>
+        <div class="stat-sub">Today or overdue</div>
       </div>
     </div>
 
@@ -934,13 +944,14 @@
               <th>Industry</th>
               <th>Service</th>
               <th>Status</th>
-              <th>Source</th>
+              <th>Deal Value</th>
+              <th>Follow-up</th>
               <th>Date</th>
               <th style="width:80px;">Actions</th>
             </tr>
           </thead>
           <tbody id="leadsBody">
-            <tr><td colspan="9">
+            <tr><td colspan="10">
               <div class="empty-state">
                 <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 <p>Loading leads…</p>
@@ -970,7 +981,8 @@
           <span>Industry</span>
           <span>Phone</span>
           <span>Status</span>
-          <span>Date</span>
+          <span>Deal Value</span>
+          <span>Follow-up</span>
           <span>Actions</span>
         </div>
         <div id="listBody"></div>
@@ -1053,6 +1065,14 @@
         </div>
         <div class="field"><label>Source</label>    <input type="text" id="f-source" placeholder="Website / LinkedIn / Referral…"/></div>
         <div class="field"><label>Page / URL</label><input type="text" id="f-page"   placeholder="/services"/></div>
+        <div class="field">
+          <label>Deal Value (₹ / $)</label>
+          <input type="text" id="f-dealvalue" placeholder="e.g. 150000"/>
+        </div>
+        <div class="field">
+          <label>Follow-up Date</label>
+          <input type="date" id="f-followupdate"/>
+        </div>
         <div class="field full"><label>Message / Enquiry</label> <textarea id="f-message"  placeholder="Describe the enquiry…"></textarea></div>
         <div class="field full"><label>Internal Comments</label> <textarea id="f-comments" placeholder="Internal notes for the team…"></textarea></div>
       </div>
@@ -1263,7 +1283,7 @@ function renderTable() {
   const pagination = document.getElementById('pagination');
 
   if (!filteredLeads.length) {
-    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state">
+    tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state">
       <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <p>No leads found.</p></div></td></tr>`;
     pagination.style.display = 'none';
@@ -1291,7 +1311,8 @@ function renderTable() {
       <td style="font-size:.76rem;color:var(--muted)">${esc(l.industry||'—')}</td>
       <td style="font-size:.78rem">${esc(l.service||'—')}</td>
       <td>${statusBadge(l.status)}</td>
-      <td style="font-size:.74rem;color:var(--muted)">${esc(l.source||'—')}</td>
+      <td style="font-family:var(--mono);font-size:.74rem;color:var(--accent);font-weight:600;">${l.dealvalue ? '₹ ' + Number(l.dealvalue).toLocaleString('en-IN') : '<span style="color:var(--border)">—</span>'}</td>
+      <td style="font-size:.73rem;font-family:var(--mono);color:${l.followupdate && l.followupdate <= new Date().toISOString().slice(0,10) ? 'var(--warn)' : 'var(--muted)'};">${esc(l.followupdate||'—')}</td>
       <td style="font-size:.73rem;color:var(--muted);font-family:var(--mono)">${esc(String(l.date||''))}</td>
       <td>
         <div class="row-actions">
@@ -1408,7 +1429,11 @@ function createBoardCard(l) {
     <div class="board-card-footer">
       <span class="board-card-service">${esc(l.service||'—')}</span>
       <span class="board-card-date">${esc(String(l.date||'').slice(0,10))}</span>
-    </div>`;
+    </div>
+    ${l.dealvalue ? `<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+      <span style="font-family:var(--mono);font-size:.62rem;color:var(--accent);font-weight:600;">₹ ${Number(l.dealvalue).toLocaleString('en-IN')}</span>
+      ${l.followupdate ? `<span style="font-family:var(--mono);font-size:.60rem;color:${l.followupdate <= new Date().toISOString().slice(0,10) ? 'var(--warn)' : 'var(--muted)'};" title="Follow-up">📅 ${esc(l.followupdate)}</span>` : ''}
+    </div>` : l.followupdate ? `<div style="margin-top:6px;font-family:var(--mono);font-size:.60rem;color:${l.followupdate <= new Date().toISOString().slice(0,10) ? 'var(--warn)' : 'var(--muted)'};">📅 ${esc(l.followupdate)}</div>` : ''}`;
 
   let didDrag = false;
   card.addEventListener('dragstart', e => {
@@ -1463,7 +1488,8 @@ async function moveLead(leadId, newStatus) {
     linkedin: lead.linkedin||'', company: lead.company||'', jobtitle: lead.jobtitle||'',
     industry: lead.industry||'', service: lead.service||'', status: newStatus,
     source: lead.source||'', page: lead.page||'', message: lead.message||'',
-    comments: lead.comments||'', useragent: navigator.userAgent
+    comments: lead.comments||'', dealvalue: lead.dealvalue||'', followupdate: lead.followupdate||'',
+    useragent: navigator.userAgent
   };
 
   const data = await apiCall(payload);
@@ -1524,9 +1550,11 @@ function renderList() {
       </div>
       <!-- col 5: status -->
       <div>${statusBadge(l.status)}</div>
-      <!-- col 6: date -->
-      <div class="list-item-date">${esc(String(l.date||'').slice(0,10))}</div>
-      <!-- col 7: actions -->
+      <!-- col 6: deal value -->
+      <div style="font-family:var(--mono);font-size:.72rem;color:var(--accent);font-weight:600;">${l.dealvalue ? '₹ ' + Number(l.dealvalue).toLocaleString('en-IN') : '<span style="opacity:.3">—</span>'}</div>
+      <!-- col 7: follow-up date -->
+      <div style="font-family:var(--mono);font-size:.68rem;color:${l.followupdate && l.followupdate <= new Date().toISOString().slice(0,10) ? 'var(--warn)' : 'var(--muted)'};">${esc(l.followupdate||'—')}</div>
+      <!-- col 8: actions -->
       <div class="list-item-actions" onclick="event.stopPropagation()">
         <button class="icon-btn" title="View" onclick="viewLead('${esc(l.leadId)}')">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -1596,6 +1624,18 @@ function updateCounts() {
   document.getElementById('s-new').textContent   = count('New');
   document.getElementById('s-qual').textContent  = count('Qualified');
   document.getElementById('s-won').textContent   = count('Won');
+
+  // Pipeline value: sum dealvalue for all non-Lost leads
+  const pipelineTotal = allLeads
+    .filter(l => l.status !== 'Lost' && l.dealvalue)
+    .reduce((sum, l) => sum + (parseFloat(String(l.dealvalue).replace(/[^0-9.]/g,'')) || 0), 0);
+  document.getElementById('s-pipeline').textContent =
+    pipelineTotal > 0 ? '₹ ' + Math.round(pipelineTotal).toLocaleString('en-IN') : '—';
+
+  // Follow-ups due: followupdate <= today (overdue or due today)
+  const today = new Date().toISOString().slice(0, 10);
+  const dueCount = allLeads.filter(l => l.followupdate && l.followupdate <= today && l.status !== 'Won' && l.status !== 'Lost').length;
+  document.getElementById('s-followup').textContent = dueCount > 0 ? dueCount : '0';
 }
 
 /* ── CREATE ── */
@@ -1604,7 +1644,7 @@ function openCreate() {
   document.getElementById('formModalTitle').textContent = 'New Lead';
   document.getElementById('formSubmitBtn').textContent  = 'Create Lead';
   ['name','email','phone','linkedin','company','jobtitle','industry',
-   'service','status','source','page','message','comments'].forEach(f => {
+   'service','status','source','page','message','comments','dealvalue','followupdate'].forEach(f => {
     const el = document.getElementById('f-'+f);
     if (el) el.value = f === 'status' ? 'New' : '';
   });
@@ -1619,7 +1659,7 @@ function editLead(leadId) {
   document.getElementById('formModalTitle').textContent = 'Edit Lead';
   document.getElementById('formSubmitBtn').textContent  = 'Save Changes';
   ['name','email','phone','linkedin','company','jobtitle',
-   'service','status','source','page','message','comments'].forEach(f => {
+   'service','status','source','page','message','comments','dealvalue','followupdate'].forEach(f => {
     const el = document.getElementById('f-'+f);
     if (el) el.value = lead[f] || '';
   });
@@ -1664,6 +1704,8 @@ async function submitForm() {
     page:      document.getElementById('f-page').value,
     message:   document.getElementById('f-message').value.trim(),
     comments:  document.getElementById('f-comments').value.trim(),
+    dealvalue: document.getElementById('f-dealvalue').value.trim(),
+    followupdate: document.getElementById('f-followupdate').value,
     useragent: navigator.userAgent
   };
   if (editingLeadId) payload.leadId = editingLeadId;
@@ -1702,7 +1744,7 @@ function viewLead(leadId) {
   document.getElementById('viewBody').innerHTML =
     section('Contact Information', [['Name',lead.name],['Email',lead.email],['Phone',lead.phone],['LinkedIn',lead.linkedin,true]]) +
     section('Company', [['Company',lead.company],['Job Title',lead.jobtitle],['Industry',lead.industry]]) +
-    section('Lead Details', [['Status',lead.status],['Service',lead.service],['Source',lead.source],['Page',lead.page],['Date',lead.date]]) +
+    section('Lead Details', [['Status',lead.status],['Service',lead.service],['Source',lead.source],['Page',lead.page],['Date',lead.date],['Deal Value',lead.dealvalue ? '₹ ' + Number(lead.dealvalue).toLocaleString('en-IN') : ''],['Follow-up Date',lead.followupdate]]) +
     section('Notes', [['Message',lead.message],['Comments',lead.comments]]);
   document.getElementById('viewOverlay').classList.add('open');
 }
@@ -1711,7 +1753,7 @@ function viewLead(leadId) {
 function exportCSV() {
   const leads = filteredLeads.length ? filteredLeads : allLeads;
   if (!leads.length) { toast('No leads to export', 'warn'); return; }
-  const cols = ['leadId','name','email','phone','company','jobtitle','industry','service','status','source','date','message','comments'];
+  const cols = ['leadId','name','email','phone','company','jobtitle','industry','service','status','source','dealvalue','followupdate','date','message','comments'];
   const header = cols.join(',');
   const rows = leads.map(l => cols.map(c => `"${String(l[c]||'').replace(/"/g,'""')}"`).join(','));
   const csv = [header, ...rows].join('\n');
