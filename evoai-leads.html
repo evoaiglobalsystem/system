@@ -956,13 +956,11 @@
               <th>Service</th>
               <th>Status</th>
               <th>Deal Value</th>
-              <th>Follow-up</th>
-              <th>Date</th>
               <th style="width:80px;">Actions</th>
             </tr>
           </thead>
           <tbody id="leadsBody">
-            <tr><td colspan="10">
+            <tr><td colspan="8">
               <div class="empty-state">
                 <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 <p>Loading leads…</p>
@@ -1323,7 +1321,7 @@ function renderTable() {
   const pagination = document.getElementById('pagination');
 
   if (!filteredLeads.length) {
-    tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state">
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">
       <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <p>No leads found.</p></div></td></tr>`;
     pagination.style.display = 'none';
@@ -1352,8 +1350,6 @@ function renderTable() {
       <td style="font-size:.78rem">${esc(l.service||'—')}</td>
       <td>${statusBadge(l.status)}</td>
       <td style="font-family:var(--mono);font-size:.74rem;color:var(--accent);font-weight:600;">${l.dealvalue ? '$' + Number(l.dealvalue).toLocaleString('en-US') : '<span style="color:var(--border)">—</span>'}</td>
-      <td style="font-size:.73rem;font-family:var(--mono);color:${fmtDate(l.followupdate) && fmtDate(l.followupdate) <= new Date().toISOString().slice(0,10) ? 'var(--warn)' : 'var(--muted)'};">${esc(fmtDate(l.followupdate)||'—')}</td>
-      <td style="font-size:.73rem;color:var(--muted);font-family:var(--mono)">${esc(String(l.date||''))}</td>
       <td>
         <div class="row-actions">
           <button class="icon-btn" title="View" onclick="viewLead('${esc(l.leadId)}')">
