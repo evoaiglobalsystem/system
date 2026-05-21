@@ -610,6 +610,23 @@
     opacity: .5;
   }
 
+  /* ── BOARD CARD SCORE TIER ACCENT ── */
+  .board-card.tier-hot  { border-left: 3px solid rgba(255,77,109,.6); }
+  .board-card.tier-warm { border-left: 3px solid rgba(255,183,48,.55); }
+  .board-card.tier-cold { border-left: 3px solid rgba(100,180,255,.4); }
+  .card-score-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-family: var(--mono); font-size: .6rem; font-weight: 700;
+    padding: 2px 6px; border-radius: 4px; letter-spacing: .03em;
+  }
+  .card-score-badge.hot  { background: rgba(255,77,109,.15);  color: #ff4d6d; border: 1px solid rgba(255,77,109,.3); }
+  .card-score-badge.warm { background: rgba(255,183,48,.12);  color: #ffb730; border: 1px solid rgba(255,183,48,.3); }
+  .card-score-badge.cold { background: rgba(100,180,255,.10); color: #64b4ff; border: 1px solid rgba(100,180,255,.25); }
+  .card-score-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .card-score-badge.hot  .card-score-dot { background: #ff4d6d; }
+  .card-score-badge.warm .card-score-dot { background: #ffb730; }
+  .card-score-badge.cold .card-score-dot { background: #64b4ff; }
+
   /* ── DRAG AND DROP ── */
   .board-card[draggable="true"] { cursor: grab; }
   .board-card[draggable="true"]:active { cursor: grabbing; }
@@ -1604,7 +1621,10 @@ function renderBoard() {
 
 function createBoardCard(l) {
   const card = document.createElement('div');
-  card.className = 'board-card';
+  const score = computeScore(l);
+  const tier  = score >= 60 ? 'hot' : score >= 35 ? 'warm' : 'cold';
+  const tierLabel = tier === 'hot' ? '🔴 HOT' : tier === 'warm' ? '🟡 WARM' : '🔵 COLD';
+  card.className = `board-card tier-${tier}`;
   card.draggable = true;
   card.dataset.leadId = l.leadId;
   card.style.position = 'relative';
@@ -1617,6 +1637,7 @@ function createBoardCard(l) {
       <div style="min-width:0;flex:1;">
         <div class="board-card-name">${esc(l.name||'—')}</div>
       </div>
+      <span class="card-score-badge ${tier}" title="Lead score: ${score}"><span class="card-score-dot"></span>${tierLabel} ${score}</span>
       <div style="width:14px;height:14px;flex-shrink:0;opacity:.3;cursor:grab;" title="Drag to move">
         <svg viewBox="0 0 14 14" fill="currentColor" width="14" height="14"><circle cx="4" cy="3" r="1.2"/><circle cx="10" cy="3" r="1.2"/><circle cx="4" cy="7" r="1.2"/><circle cx="10" cy="7" r="1.2"/><circle cx="4" cy="11" r="1.2"/><circle cx="10" cy="11" r="1.2"/></svg>
       </div>
