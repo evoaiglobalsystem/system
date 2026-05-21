@@ -2029,6 +2029,21 @@ function toast(msg, type='success') {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
 }
+
+function toggleHelpPanel() {
+  const panel   = document.getElementById('helpPanel');
+  const overlay = document.getElementById('helpOverlay');
+  const isOpen  = panel.classList.contains('open');
+  if (isOpen) {
+    panel.classList.remove('open');
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  } else {
+    panel.classList.add('open');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+}
 </script>
 </body>
 </html>
