@@ -9,7 +9,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider, setPersistence, browserLocalPersistence, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, setPersistence, browserLocalPersistence, onAuthStateChanged, signOut as firebaseSignOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
   const WORKER_URL = 'https://evoai-auth-check.evoaiglobal-system.workers.dev/'; // ← replace with your Worker URL
 
@@ -26,6 +26,9 @@
   const auth     = getAuth(app);
   const provider = new GoogleAuthProvider();
   await setPersistence(auth, browserLocalPersistence);
+
+  // Capture the original button HTML inside the module so showLoading/hideLoading can use it
+  const googleBtnInner = document.getElementById('googleBtn').innerHTML;
 
   // ── Verify with Cloudflare Worker (server-side gate)
   async function checkWithWorker(user) {
@@ -45,12 +48,12 @@
       if (result.ok) {
         showSelector(user);
       } else {
-        await signOut(auth);
+        await firebaseSignOut(auth);
         hideLoading();
         showError(result.reason || 'Access denied.');
       }
     } catch (err) {
-      await signOut(auth);
+      await firebaseSignOut(auth);
       hideLoading();
       showError('Could not verify access. Check your connection and try again.');
       console.error(err);
@@ -99,14 +102,18 @@
 
   function showLoading(msg) {
     const btn = document.getElementById('googleBtn');
-    btn.disabled = true;
-    btn.innerHTML = `<span class="btn-spinner"></span> ${msg}`;
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<span class="btn-spinner"></span> ${msg}`;
+    }
   }
 
   function hideLoading() {
     const btn = document.getElementById('googleBtn');
-    btn.disabled = false;
-    btn.innerHTML = googleBtnInner;
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = googleBtnInner;
+    }
   }
 
   function showSelector(user) {
@@ -124,7 +131,7 @@
   window.goToDashboard = (url) => { window.location.href = url; };
 
   window.signOut = async () => {
-    await signOut(auth);
+    await firebaseSignOut(auth);
     document.getElementById('selectorView').style.display = 'none';
     document.getElementById('loginView').style.display    = 'block';
   };
@@ -541,10 +548,6 @@
     </div>
   </div>
 </footer>
-
-<script>
-  const googleBtnInner = document.getElementById('googleBtn').innerHTML;
-</script>
 
 </body>
 </html>
