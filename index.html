@@ -41,39 +41,36 @@
     return await res.json(); // { ok: true/false, reason: '...' }
   }
 
-  // ── Overlay-based verifying indicator (never touches the Google button)
-  function showVerifying(visible) {
-    let overlay = document.getElementById('verifyingOverlay');
-    if (!overlay) {
-      overlay = document.createElement('div');
-      overlay.id = 'verifyingOverlay';
-      overlay.style.cssText = 'position:fixed;inset:0;z-index:150;background:rgba(5,27,54,0.88);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px';
-      overlay.innerHTML = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#378ADD" stroke-width="2" style="animation:spin .8s linear infinite"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.28-4.56"/></svg><span style="font-family:\'Sora\',sans-serif;font-size:.9rem;color:#85B7EB;letter-spacing:.02em">Verifying access\u2026</span>';
-      document.body.appendChild(overlay);
-    }
-    overlay.style.display = visible ? 'flex' : 'none';
+  // ── Single source of truth: #authCheck covers everything while Firebase is busy.
+  // We NEVER remove it — we just show/hide it. This prevents any flash of content.
+  function showCover(visible) {
+    document.getElementById('authCheck').style.display = visible ? 'flex' : 'none';
   }
 
-  // Always resets the Google button to its original state
+  // Always resets the Google button to its original clean state
   function resetBtn() {
     const btn = document.getElementById('googleBtn');
     if (btn) { btn.disabled = false; btn.innerHTML = googleBtnInner; }
   }
 
-  // Show login card cleanly (button reset, errors cleared)
+  // Show login card cleanly: cover hidden, button reset, errors cleared
   function showLoginView() {
-    resetBtn();
-    clearError();
+    showCover(false);
     document.getElementById('selectorView').style.display = 'none';
     document.getElementById('loginView').style.display    = 'block';
+    resetBtn();
+    clearError();
   }
 
   async function authorise(user) {
-    showVerifying(true);
+    // Keep the cover visible while we check with the Worker
+    showCover(true);
+    document.getElementById('loginView').style.display    = 'none';
+    document.getElementById('selectorView').style.display = 'none';
     try {
       const result = await checkWithWorker(user);
-      showVerifying(false);
       if (result.ok) {
+        showCover(false);
         showSelector(user);
       } else {
         await firebaseSignOut(auth);
@@ -81,7 +78,6 @@
         showError(result.reason || 'Access denied.');
       }
     } catch (err) {
-      showVerifying(false);
       await firebaseSignOut(auth);
       showLoginView();
       showError('Could not verify access. Check your connection and try again.');
@@ -89,10 +85,8 @@
     }
   }
 
-  // Auto-show selector if session is already active (returning from a dashboard)
+  // onAuthStateChanged is the single entry point — fires on page load AND after sign-out
   onAuthStateChanged(auth, async (user) => {
-    const authCheck = document.getElementById('authCheck');
-    if (authCheck) authCheck.remove();
     if (user) {
       await authorise(user);
     } else {
@@ -107,6 +101,8 @@
     clearError();
     try {
       const result = await signInWithPopup(auth, provider);
+      // authorise() will be called by onAuthStateChanged automatically,
+      // but we call it here too for immediate feedback
       if (result?.user) await authorise(result.user);
     } catch (err) {
       resetBtn();
@@ -143,12 +139,12 @@
 
   window.goToDashboard = (url) => { window.location.href = url; };
 
-  // signOut: show overlay while Firebase clears the session;
-  // onAuthStateChanged will fire next (user=null) and call showLoginView()
+  // Sign out: just call Firebase. onAuthStateChanged fires with user=null → showLoginView()
   window.signOut = async () => {
-    showVerifying(true);
+    showCover(true);
+    document.getElementById('selectorView').style.display = 'none';
     await firebaseSignOut(auth);
-    // onAuthStateChanged handles the rest
+    // onAuthStateChanged will call showLoginView() next
   };
 
   function clearError() { document.getElementById('errorMsg').style.display = 'none'; }
@@ -180,7 +176,7 @@
   #authCheck {
     position: fixed; inset: 0; z-index: 200;
     background: var(--bg);
-    display: flex; align-items: center; justify-content: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
   }
   #authCheck svg { animation: spin .8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -413,11 +409,12 @@
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
 
-<!-- Auth check overlay — covers everything until Firebase resolves -->
+<!-- Auth check overlay — covers everything while Firebase / Worker are busy. NEVER removed, only toggled. -->
 <div id="authCheck">
-  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#378ADD" stroke-width="2">
+  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#378ADD" stroke-width="2">
     <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.28-4.56"/>
   </svg>
+  <span style="font-family:'Sora',sans-serif;font-size:.88rem;color:#85B7EB;letter-spacing:.03em;margin-top:4px">Verifying access…</span>
 </div>
 
 <div id="loginView">
