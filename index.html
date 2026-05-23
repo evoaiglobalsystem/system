@@ -27,7 +27,12 @@
 
   // Auto-show selector if session is already active (e.g. coming back from a dashboard)
   onAuthStateChanged(auth, (user) => {
-    if (user) showSelector(user);
+    document.getElementById('authCheck').remove();
+    if (user) {
+      showSelector(user);
+    } else {
+      document.getElementById('loginView').style.display = 'block';
+    }
   });
 
   window.googleLogin = async () => {
@@ -106,6 +111,18 @@
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* Auth check spinner — shown until Firebase resolves */
+  #authCheck {
+    position: fixed; inset: 0; z-index: 200;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+  }
+  #authCheck svg { animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Hide login card until we know the user isn't authed */
+  #loginView { display: none; }
 
   body {
     background: var(--bg); color: var(--text); font-family: var(--font);
@@ -331,6 +348,13 @@
 
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
+
+<!-- Auth check overlay — covers everything until Firebase resolves -->
+<div id="authCheck">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#378ADD" stroke-width="2">
+    <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.28-4.56"/>
+  </svg>
+</div>
 
 <div id="loginView">
 <div class="card">
