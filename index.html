@@ -239,7 +239,7 @@
   /* ── SELECTOR VIEW ── */
   #selectorView {
     display: none; flex-direction: column; align-items: center;
-    position: relative; z-index: 1; width: 100%; max-width: 500px;
+    position: relative; z-index: 1; width: 100%; max-width: 720px;
     margin-bottom: 80px; animation: cardIn .4s cubic-bezier(.22,1,.36,1);
   }
 
@@ -273,7 +273,7 @@
   }
 
   .dash-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; width: 100%;
   }
 
   .dash-card {
@@ -293,6 +293,7 @@
 
   .dash-card.status { --card-hover: #00e5a0; --card-line: #00e5a0; }
   .dash-card.logs   { --card-hover: #378ADD; --card-line: #378ADD; }
+  .dash-card.leads  { --card-hover: #ED93B1; --card-line: #ED93B1; }
 
   .dash-icon {
     width: 40px; height: 40px; border-radius: 10px;
@@ -300,6 +301,7 @@
   }
   .dash-card.status .dash-icon { background: rgba(0,229,160,.12); color: #00e5a0; }
   .dash-card.logs   .dash-icon { background: rgba(55,138,221,.14); color: #378ADD; }
+  .dash-card.leads  .dash-icon { background: rgba(237,147,177,.13); color: #ED93B1; }
 
   .dash-label {
     font-size: .92rem; font-weight: 700; color: var(--text); letter-spacing: -.01em;
@@ -314,7 +316,7 @@
   }
   .dash-card:hover .dash-arrow { color: var(--card-hover, #378ADD); }
 
-  @media (max-width: 480px) {
+  @media (max-width: 600px) {
     .dash-grid { grid-template-columns: 1fr; }
     #selectorView { margin: 16px; margin-bottom: 90px; }
   }
@@ -404,6 +406,26 @@
       <div>
         <div class="dash-label">Logs Dashboard</div>
         <div class="dash-sub">Browse, filter and inspect evoAIDesk system logs in real time.</div>
+      </div>
+      <div class="dash-arrow">
+        Open
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+      </div>
+    </div>
+
+    <!-- Leads Dashboard -->
+    <div class="dash-card leads" onclick="goToDashboard('/evoai-leads.html')">
+      <div class="dash-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <div>
+        <div class="dash-label">Leads Dashboard</div>
+        <div class="dash-sub">Track, manage and analyse evoAI lead pipeline data.</div>
       </div>
       <div class="dash-arrow">
         Open

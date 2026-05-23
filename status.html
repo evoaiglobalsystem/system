@@ -39,6 +39,13 @@ nav {
   text-decoration:none;transition:color .15s;
 }
 .nav-back:hover{color:var(--accent)}
+.nav-signout-btn{
+  display:flex;align-items:center;gap:6px;
+  font-size:.72rem;font-family:var(--mono);color:var(--muted);
+  background:none;border:1px solid var(--border);border-radius:6px;
+  padding:5px 11px;cursor:pointer;transition:all .15s;
+}
+.nav-signout-btn:hover{border-color:var(--danger);color:var(--danger);}
 .nav-right{display:flex;align-items:center;gap:12px}
 .nav-ts{font-family:var(--mono);font-size:.63rem;color:var(--muted)}
 .pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 rgba(0,229,160,.4);animation:pulse-live 2s infinite;display:inline-block}
@@ -318,7 +325,7 @@ nav {
 <!-- ── Firebase auth guard ── -->
 <script type="module">
   import { initializeApp }    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC4k4kJZ2aDrYs7Ah-H0SuMF-d8s55X9ZM",
@@ -331,6 +338,11 @@ nav {
 
   const app  = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+
+  window.doSignOut = async () => {
+    await signOut(auth);
+    window.location.href = '/index.html';
+  };
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -360,10 +372,18 @@ nav {
   <a class="nav-logo" href="https://desk.evoaiglobal.ai/">
     <img src="https://desk.evoaiglobal.ai/images/evoaidesk.png" alt="evoAIDesk"/>
   </a>
-  <a class="nav-back" href="/index.html">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-    <span>All Dashboards</span>
-  </a>
+  <div class="nav-right">
+    <a class="nav-back" href="/index.html">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      <span>All Dashboards</span>
+    </a>
+    <span class="nav-ts" id="nav-ts">Checking…</span>
+    <span class="pulse-dot checking" id="pulse"></span>
+    <button class="nav-signout-btn" onclick="doSignOut()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign out
+    </button>
+  </div>
 </nav>
 
 <!-- ── MAIN ── -->
