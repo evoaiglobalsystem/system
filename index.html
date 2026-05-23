@@ -9,9 +9,11 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider, setPersistence, browserLocalPersistence, onAuthStateChanged, signOut as firebaseSignOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, setPersistence,
+           browserLocalPersistence, onAuthStateChanged,
+           signOut as firebaseSignOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-  const WORKER_URL = 'https://evoai-auth-check.evoaiglobal-system.workers.dev/'; // ← replace with your Worker URL
+  const WORKER_URL = 'https://evoai-auth-check.evoaiglobal-system.workers.dev/';
 
   const firebaseConfig = {
     apiKey: "AIzaSyC4k4kJZ2aDrYs7Ah-H0SuMF-d8s55X9ZM",
@@ -27,131 +29,155 @@
   const provider = new GoogleAuthProvider();
   await setPersistence(auth, browserLocalPersistence);
 
-  // Capture the original button HTML inside the module so showLoading/hideLoading can use it
+  // Snapshot of the clean button markup — captured once at startup
   const googleBtnInner = document.getElementById('googleBtn').innerHTML;
 
-  // ── Verify with Cloudflare Worker (server-side gate)
-  async function checkWithWorker(user) {
-    const idToken = await user.getIdToken(true); // force-refresh token
-    const res = await fetch(WORKER_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ idToken })
-    });
-    return await res.json(); // { ok: true/false, reason: '...' }
-  }
+  // ─── State flags ───────────────────────────────────────────────────────────
+  // Prevents onAuthStateChanged from re-running authorise() while we are already
+  // inside it (e.g. after signInWithPopup resolves and triggers the listener).
+  let isAuthorising = false;
+  // Prevents onAuthStateChanged from treating the sign-out-triggered null event
+  // as a reason to show the login view before we have called firebaseSignOut.
+  let isSigningOut  = false;
 
-  // ── Single source of truth: #authCheck covers everything while Firebase is busy.
-  // We NEVER remove it — we just show/hide it. This prevents any flash of content.
-  function showCover(visible) {
-    document.getElementById('authCheck').style.display = visible ? 'flex' : 'none';
-  }
+  // ─── UI helpers ────────────────────────────────────────────────────────────
+  const cover       = document.getElementById('authCheck');
+  const loginView   = document.getElementById('loginView');
+  const selectorView= document.getElementById('selectorView');
 
-  // Always resets the Google button to its original clean state
+  function showCover()    { cover.style.display = 'flex';  }
+  function hideCover()    { cover.style.display = 'none';  }
+
   function resetBtn() {
     const btn = document.getElementById('googleBtn');
     if (btn) { btn.disabled = false; btn.innerHTML = googleBtnInner; }
   }
 
-  // Show login card cleanly: cover hidden, button reset, errors cleared
-  function showLoginView() {
-    showCover(false);
-    document.getElementById('selectorView').style.display = 'none';
-    document.getElementById('loginView').style.display    = 'block';
+  function showLogin() {
+    selectorView.style.display = 'none';
+    loginView.style.display    = 'block';
     resetBtn();
     clearError();
-  }
-
-  async function authorise(user) {
-    // Keep the cover visible while we check with the Worker
-    showCover(true);
-    document.getElementById('loginView').style.display    = 'none';
-    document.getElementById('selectorView').style.display = 'none';
-    try {
-      const result = await checkWithWorker(user);
-      if (result.ok) {
-        showCover(false);
-        showSelector(user);
-      } else {
-        await firebaseSignOut(auth);
-        showLoginView();
-        showError(result.reason || 'Access denied.');
-      }
-    } catch (err) {
-      await firebaseSignOut(auth);
-      showLoginView();
-      showError('Could not verify access. Check your connection and try again.');
-      console.error(err);
-    }
-  }
-
-  // onAuthStateChanged is the single entry point — fires on page load AND after sign-out
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      await authorise(user);
-    } else {
-      showLoginView();
-    }
-  });
-
-  window.googleLogin = async () => {
-    const btn = document.getElementById('googleBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="btn-spinner"></span> Opening Google\u2026';
-    clearError();
-    try {
-      const result = await signInWithPopup(auth, provider);
-      // authorise() will be called by onAuthStateChanged automatically,
-      // but we call it here too for immediate feedback
-      if (result?.user) await authorise(result.user);
-    } catch (err) {
-      resetBtn();
-      if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
-        showError(friendlyError(err.code));
-      }
-      console.error(err);
-    }
-  };
-
-  function friendlyError(code) {
-    const map = {
-      'auth/popup-blocked':          'Popup was blocked \u2014 please allow popups for this site and try again.',
-      'auth/user-disabled':          'This Google account has been disabled.',
-      'auth/too-many-requests':      'Too many attempts. Please try again later.',
-      'auth/network-request-failed': 'Network error. Check your connection and try again.',
-      'auth/unauthorized-domain':    'This domain is not authorised in Firebase. Contact the admin.',
-      'auth/internal-error':         'An internal error occurred. Please try again.',
-    };
-    return map[code] || 'Something went wrong. Please try again.';
+    hideCover();
   }
 
   function showSelector(user) {
-    document.getElementById('loginView').style.display = 'none';
-    const sel = document.getElementById('selectorView');
-    sel.style.display = 'flex';
+    loginView.style.display    = 'none';
+    selectorView.style.display = 'flex';
     const name     = user.displayName || user.email || 'User';
     const email    = user.email || '';
     const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
     document.getElementById('userInitials').textContent = initials;
     document.getElementById('userName').textContent     = name;
     document.getElementById('userEmail').textContent    = email;
+    hideCover();
   }
-
-  window.goToDashboard = (url) => { window.location.href = url; };
-
-  // Sign out: just call Firebase. onAuthStateChanged fires with user=null → showLoginView()
-  window.signOut = async () => {
-    showCover(true);
-    document.getElementById('selectorView').style.display = 'none';
-    await firebaseSignOut(auth);
-    // onAuthStateChanged will call showLoginView() next
-  };
 
   function clearError() { document.getElementById('errorMsg').style.display = 'none'; }
   function showError(msg) {
     const el = document.getElementById('errorMsg');
     el.querySelector('span').textContent = msg;
     el.style.display = 'flex';
+  }
+
+  // ─── Worker gate ───────────────────────────────────────────────────────────
+  async function checkWithWorker(user) {
+    const idToken = await user.getIdToken(true);
+    const res = await fetch(WORKER_URL, {
+      method : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body   : JSON.stringify({ idToken })
+    });
+    return res.json(); // { ok: true/false, reason?: string }
+  }
+
+  // ─── Core authorise flow ───────────────────────────────────────────────────
+  async function authorise(user) {
+    if (isAuthorising) return;   // guard: never run twice concurrently
+    isAuthorising = true;
+    showCover();
+    loginView.style.display    = 'none';
+    selectorView.style.display = 'none';
+    try {
+      const result = await checkWithWorker(user);
+      if (result.ok) {
+        showSelector(user);
+      } else {
+        isSigningOut = true;
+        await firebaseSignOut(auth);
+        isSigningOut = false;
+        showLogin();
+        showError(result.reason || 'Access denied.');
+      }
+    } catch (err) {
+      console.error(err);
+      isSigningOut = true;
+      await firebaseSignOut(auth);
+      isSigningOut = false;
+      showLogin();
+      showError('Could not verify access. Check your connection and try again.');
+    } finally {
+      isAuthorising = false;
+    }
+  }
+
+  // ─── Auth state listener — SINGLE entry point for all state changes ────────
+  onAuthStateChanged(auth, async (user) => {
+    if (isSigningOut) return;   // ignore the null event triggered by our own signOut
+    if (isAuthorising) return;  // already handling this user session
+    if (user) {
+      await authorise(user);
+    } else {
+      showLogin();
+    }
+  });
+
+  // ─── Google sign-in button ─────────────────────────────────────────────────
+  // We drive the full flow here; onAuthStateChanged is guarded by isAuthorising
+  // so it will not double-fire authorise().
+  window.googleLogin = async () => {
+    if (isAuthorising) return;
+    const btn = document.getElementById('googleBtn');
+    btn.disabled  = true;
+    btn.innerHTML = '<span class="btn-spinner"></span> Opening Google\u2026';
+    clearError();
+    try {
+      const cred = await signInWithPopup(auth, provider);
+      if (cred?.user) await authorise(cred.user);
+    } catch (err) {
+      resetBtn();
+      const skip = ['auth/popup-closed-by-user', 'auth/cancelled-popup-request'];
+      if (!skip.includes(err.code)) showError(friendlyError(err.code));
+      console.error(err);
+    }
+  };
+
+  // ─── Sign-out ──────────────────────────────────────────────────────────────
+  window.signOut = async () => {
+    if (isAuthorising || isSigningOut) return;
+    isSigningOut = true;
+    showCover();
+    selectorView.style.display = 'none';
+    try {
+      await firebaseSignOut(auth);
+    } finally {
+      isSigningOut = false;
+      showLogin();
+    }
+  };
+
+  window.goToDashboard = (url) => { window.location.href = url; };
+
+  function friendlyError(code) {
+    const map = {
+      'auth/popup-blocked'         : 'Popup was blocked \u2014 please allow popups and try again.',
+      'auth/user-disabled'         : 'This Google account has been disabled.',
+      'auth/too-many-requests'     : 'Too many attempts. Please try again later.',
+      'auth/network-request-failed': 'Network error. Check your connection and try again.',
+      'auth/unauthorized-domain'   : 'This domain is not authorised in Firebase. Contact the admin.',
+      'auth/internal-error'        : 'An internal error occurred. Please try again.',
+    };
+    return map[code] || 'Something went wrong. Please try again.';
   }
 </script>
 
@@ -174,8 +200,8 @@
 
   /* Auth check spinner — shown until Firebase resolves */
   #authCheck {
-    position: fixed; inset: 0; z-index: 200;
-    background: var(--bg);
+    position: fixed; inset: 0; z-index: 9999;
+    background: #051B36;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
   }
   #authCheck svg { animation: spin .8s linear infinite; }
