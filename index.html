@@ -32,7 +32,7 @@
     clearError();
     try {
       const result = await signInWithPopup(auth, provider);
-      if (result?.user) window.location.href = "/evoai-leads.html";
+      if (result?.user) showSelector(result.user);
     } catch (err) {
       btn.disabled = false;
       btn.innerHTML = googleBtnInner;
@@ -54,6 +54,28 @@
     };
     return map[code] || 'Something went wrong. Please try again.';
   }
+
+  function showSelector(user) {
+    document.getElementById('loginView').style.display = 'none';
+    const sel = document.getElementById('selectorView');
+    sel.style.display = 'flex';
+    // Populate user info
+    const name  = user.displayName || user.email || 'User';
+    const email = user.email || '';
+    const initials = name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+    document.getElementById('userInitials').textContent   = initials;
+    document.getElementById('userName').textContent       = name;
+    document.getElementById('userEmail').textContent      = email;
+  }
+
+  window.goToDashboard = (url) => { window.location.href = url; };
+
+  window.signOut = async () => {
+    const { signOut } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js");
+    await signOut(auth);
+    document.getElementById('selectorView').style.display = 'none';
+    document.getElementById('loginView').style.display    = 'block';
+  };
 
   function clearError() { document.getElementById('errorMsg').style.display = 'none'; }
   function showError(msg) {
@@ -213,6 +235,89 @@
     .divider { margin: 0 -28px 32px; }
     .site-footer { padding: 12px 20px; }
   }
+
+  /* ── SELECTOR VIEW ── */
+  #selectorView {
+    display: none; flex-direction: column; align-items: center;
+    position: relative; z-index: 1; width: 100%; max-width: 500px;
+    margin-bottom: 80px; animation: cardIn .4s cubic-bezier(.22,1,.36,1);
+  }
+
+  .selector-user {
+    display: flex; align-items: center; gap: 12px;
+    background: #071E33; border: 1px solid #185FA5; border-radius: 12px;
+    padding: 14px 20px; width: 100%; margin-bottom: 16px;
+  }
+  .user-avatar {
+    width: 38px; height: 38px; border-radius: 9px; flex-shrink: 0;
+    background: linear-gradient(135deg, #378ADD, #ED93B1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .78rem; font-weight: 700; color: #fff;
+    font-family: var(--mono);
+  }
+  .user-info { flex: 1; text-align: left; }
+  .user-name  { font-size: .88rem; font-weight: 600; color: var(--text); }
+  .user-email { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+  .signout-btn {
+    font-size: .7rem; font-family: var(--mono); color: var(--muted);
+    background: none; border: 1px solid #185FA5; border-radius: 5px;
+    padding: 5px 10px; cursor: pointer; transition: all .15s; flex-shrink: 0;
+  }
+  .signout-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .selector-heading {
+    font-size: .62rem; font-weight: 600; letter-spacing: .13em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 12px;
+    align-self: flex-start; padding-left: 2px;
+    font-family: var(--mono);
+  }
+
+  .dash-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%;
+  }
+
+  .dash-card {
+    background: #071E33; border: 1px solid #185FA5; border-radius: 14px;
+    padding: 26px 22px; cursor: pointer; transition: all .2s;
+    display: flex; flex-direction: column; gap: 14px; text-align: left;
+    position: relative; overflow: hidden;
+  }
+  .dash-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--card-line, #185FA5); border-radius: 14px 14px 0 0;
+    opacity: 0; transition: opacity .2s;
+  }
+  .dash-card:hover { border-color: var(--card-hover, #378ADD); transform: translateY(-2px); box-shadow: 0 10px 36px rgba(4,44,83,.5); }
+  .dash-card:hover::before { opacity: 1; }
+  .dash-card:active { transform: translateY(0); }
+
+  .dash-card.status { --card-hover: #00e5a0; --card-line: #00e5a0; }
+  .dash-card.logs   { --card-hover: #378ADD; --card-line: #378ADD; }
+
+  .dash-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .dash-card.status .dash-icon { background: rgba(0,229,160,.12); color: #00e5a0; }
+  .dash-card.logs   .dash-icon { background: rgba(55,138,221,.14); color: #378ADD; }
+
+  .dash-label {
+    font-size: .92rem; font-weight: 700; color: var(--text); letter-spacing: -.01em;
+  }
+  .dash-sub {
+    font-size: .73rem; color: var(--muted); line-height: 1.5; margin-top: 2px;
+  }
+  .dash-arrow {
+    margin-top: auto; display: flex; align-items: center; gap: 5px;
+    font-size: .7rem; font-family: var(--mono); color: var(--muted);
+    transition: color .15s;
+  }
+  .dash-card:hover .dash-arrow { color: var(--card-hover, #378ADD); }
+
+  @media (max-width: 480px) {
+    .dash-grid { grid-template-columns: 1fr; }
+    #selectorView { margin: 16px; margin-bottom: 90px; }
+  }
 </style>
 </head>
 <body>
@@ -220,6 +325,7 @@
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
 
+<div id="loginView">
 <div class="card">
   <div class="logo-wrap">
     <img src="/images/logo.png" alt="evoAI"/>
@@ -248,6 +354,62 @@
   <div class="secure-note">
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     Secured by Google OAuth 2.0
+  </div>
+</div>
+</div>
+
+<!-- ── DASHBOARD SELECTOR (shown after login) ── -->
+<div id="selectorView">
+  <!-- User pill -->
+  <div class="selector-user">
+    <div class="user-avatar" id="userInitials">??</div>
+    <div class="user-info">
+      <div class="user-name"  id="userName">—</div>
+      <div class="user-email" id="userEmail">—</div>
+    </div>
+    <button class="signout-btn" onclick="signOut()">Sign out</button>
+  </div>
+
+  <div class="selector-heading">Choose a dashboard</div>
+
+  <div class="dash-grid">
+    <!-- Status Dashboard -->
+    <div class="dash-card status" onclick="goToDashboard('/status.html')">
+      <div class="dash-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+      </div>
+      <div>
+        <div class="dash-label">Infra Status</div>
+        <div class="dash-sub">Live health &amp; uptime monitoring for all evoAI services.</div>
+      </div>
+      <div class="dash-arrow">
+        Open
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+      </div>
+    </div>
+
+    <!-- Logs Dashboard -->
+    <div class="dash-card logs" onclick="goToDashboard('/logs_dashboard.html')">
+      <div class="dash-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+      </div>
+      <div>
+        <div class="dash-label">Logs Dashboard</div>
+        <div class="dash-sub">Browse, filter and inspect evoAIDesk system logs in real time.</div>
+      </div>
+      <div class="dash-arrow">
+        Open
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+      </div>
+    </div>
   </div>
 </div>
 

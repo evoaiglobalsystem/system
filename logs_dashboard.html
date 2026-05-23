@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>evoAIDesk — System Logs</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="icon" type="image/x-icon" href="https://evoaiglobal.ai/images/favicon.ico"/>
+<style>
+  :root {
+    --bg:      #080c10;
+    --surface: #0e1420;
+    --surface2:#141c2a;
+    --border:  #1e2d42;
+    --accent:  #00e5a0;
+    --accent2: #00b8ff;
+    --danger:  #ff4d6d;
+    --warn:    #ffb730;
+    --text:    #e8f0fe;
+    --muted:   #6b7fa3;
+    --font:    'Sora', sans-serif;
+    --mono:    'DM Mono', monospace;
+    --nav-h:   60px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; overflow-x: hidden; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(8,12,16,.88); backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px; height: var(--nav-h);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-right { display: flex; align-items: center; gap: 10px; }
+  .pill-btn {
+    font-family: var(--font); font-size: .78rem; font-weight: 600;
+    letter-spacing: .04em; cursor: pointer; border: none; border-radius: 6px;
+    padding: 7px 16px; transition: all .18s; display: flex; align-items: center; gap: 6px;
+  }
+  .pill-btn.outline { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+  .pill-btn.outline:hover { border-color: var(--accent); color: var(--accent); }
+  .nav-badge {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .05em;
+    background: rgba(0,229,160,.08); border: 1px solid rgba(0,229,160,.2);
+    color: var(--accent); padding: 3px 9px; border-radius: 5px;
+  }
+
+  /* ── LAYOUT ── */
+  .shell {
+    display: grid;
+    grid-template-columns: 230px 1fr;
+    height: calc(100vh - var(--nav-h));
+    overflow: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  aside {
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+    display: flex; flex-direction: column;
+    height: 100%; overflow: hidden;
+    position: relative;
+    transition: width .25s cubic-bezier(.4,0,.2,1);
+    width: 230px; min-width: 0;
+  }
+  aside.collapsed { width: 52px; }
+  aside.collapsed .aside-label,
+  aside.collapsed .aside-count,
+  aside.collapsed .aside-item span:not(svg):not(.aside-count) { display: none; }
+  aside.collapsed .aside-item { justify-content: center; padding: 8px; }
+  aside.collapsed .aside-user-footer { justify-content: center; padding: 14px 8px; }
+  aside.collapsed .aside-user-text { display: none; }
+
+  .aside-scroll { flex: 1; overflow-y: auto; padding: 10px 0 8px; }
+  .aside-scroll::-webkit-scrollbar { width: 4px; }
+  .aside-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .aside-section { padding: 0 16px 4px; }
+  .aside-label {
+    font-size: .62rem; font-weight: 600; letter-spacing: .12em;
+    color: var(--muted); text-transform: uppercase; padding: 6px 0 6px;
+  }
+  .aside-item {
+    display: flex; align-items: center; gap: 9px;
+    padding: 8px 11px; border-radius: 7px;
+    font-size: .81rem; font-weight: 500; cursor: pointer;
+    color: var(--muted); transition: all .14s; margin-bottom: 2px;
+    border: 1px solid transparent;
+  }
+  .aside-item:hover { background: var(--surface2); color: var(--text); }
+  .aside-item.active { background: rgba(0,229,160,.08); border-color: rgba(0,229,160,.2); color: var(--accent); }
+  .aside-item svg { flex-shrink: 0; }
+  .aside-count {
+    margin-left: auto; font-family: var(--mono); font-size: .65rem;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--muted); padding: 1px 7px; border-radius: 20px;
+  }
+  .aside-user-footer {
+    flex-shrink: 0; padding: 14px 16px; border-top: 1px solid var(--border);
+    background: var(--surface); display: flex; align-items: center; gap: 10px;
+  }
+  .user-avatar {
+    width: 30px; height: 30px; border-radius: 7px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: .68rem; font-weight: 700; color: #080c10; flex-shrink: 0;
+    font-family: var(--mono);
+  }
+  .aside-user-text { overflow: hidden; }
+  .aside-user-name {
+    font-size: .76rem; font-weight: 600; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .aside-user-email {
+    font-size: .65rem; color: var(--muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .sidebar-toggle {
+    position: absolute; top: 50%; right: -13px; transform: translateY(-50%);
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--muted); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 10; transition: all .18s;
+  }
+  .sidebar-toggle:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,229,160,.08); }
+  .sidebar-toggle svg { transition: transform .25s; }
+  aside.collapsed .sidebar-toggle svg { transform: rotate(180deg); }
+
+  /* ── MAIN ── */
+  main { padding: 28px 34px; overflow-y: auto; height: 100%; }
+
+  .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
+  .page-title { font-size: 1.45rem; font-weight: 800; letter-spacing: -.03em; display: flex; align-items: center; gap: 10px; }
+  .page-title-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; animation: pulse 2s ease-in-out infinite; }
+  .page-sub { font-size: .78rem; color: var(--muted); margin-top: 4px; font-family: var(--mono); }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.4;} }
+
+  /* ── TOOLBAR ── */
+  .toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .search-wrap { position: relative; }
+  .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+  .search-wrap input { padding-left: 30px; width: 190px; }
+
+  input[type="text"], select {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); font-family: var(--mono); font-size: .78rem;
+    border-radius: 7px; outline: none; transition: border-color .18s;
+    padding: 7px 11px; height: 32px;
+  }
+  input[type="text"]:focus, select:focus { border-color: var(--accent); }
+  select { cursor: pointer; }
+  select option { background: var(--surface2); }
+
+  .icon-btn {
+    height: 32px; padding: 0 10px; border-radius: 7px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); cursor: pointer;
+    display: flex; align-items: center; gap: 5px; font-size: .78rem;
+    font-family: var(--font); transition: all .14s;
+  }
+  .icon-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,229,160,.06); }
+
+  .count-pill {
+    font-size: .7rem; color: var(--muted);
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 3px 10px; font-family: var(--mono);
+    margin-left: auto;
+  }
+
+  /* ── ERROR BANNER ── */
+  .err-banner {
+    display: none; align-items: center; gap: 8px;
+    background: rgba(255,77,109,.07); border: 1px solid rgba(255,77,109,.25);
+    border-radius: 8px; padding: 9px 14px; margin-bottom: 14px;
+    font-size: .76rem; color: var(--danger); font-family: var(--mono);
+  }
+  .err-banner.show { display: flex; }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: .8rem; }
+  thead tr { background: var(--surface2); }
+  th {
+    text-align: left; padding: 10px 13px;
+    font-size: .62rem; font-weight: 600; letter-spacing: .09em;
+    text-transform: uppercase; color: var(--muted);
+    border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid rgba(30,45,66,.6); transition: background .12s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover td { background: rgba(255,255,255,.022); }
+  td { padding: 10px 13px; vertical-align: top; word-break: break-word; }
+
+  .c0{width:52px;}.c1{width:108px;}.c2{width:56px;}.c3{width:66px;}.c4{width:76px;}.c5{width:130px;}.c6{width:72px;}.c7{width:auto;}.c8{width:30px;}
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-block; font-size: .66rem; font-weight: 600;
+    padding: 2px 8px; border-radius: 20px; font-family: var(--mono);
+    white-space: nowrap; letter-spacing: .03em;
+  }
+  /* level */
+  .li { background: rgba(0,184,255,.12);  color: #64b4ff; border: 1px solid rgba(0,184,255,.25); }
+  .ls { background: rgba(0,200,100,.12);  color: #00c864; border: 1px solid rgba(0,200,100,.25); }
+  .lw { background: rgba(255,183,48,.12); color: #ffb730; border: 1px solid rgba(255,183,48,.25); }
+  .le { background: rgba(255,77,109,.12); color: #ff4d6d; border: 1px solid rgba(255,77,109,.25); }
+  .lm { background: rgba(0,229,160,.1);   color: var(--accent); border: 1px solid rgba(0,229,160,.22); }
+  .lt { background: rgba(130,60,220,.15); color: #c084fc; border: 1px solid rgba(130,60,220,.3); }
+  .lg { background: var(--surface2);      color: var(--muted); border: 1px solid var(--border); }
+
+  .ts { font-family: var(--mono); font-size: .68rem; color: var(--muted); white-space: nowrap; line-height: 1.7; }
+  .src { font-size: .78rem; color: var(--text); }
+  .uid { font-size: .67rem; color: var(--muted); font-family: var(--mono); margin-top: 2px; }
+  .msg { font-size: .79rem; line-height: 1.45; color: var(--text); }
+
+  /* ── META PANEL ── */
+  .meta-panel {
+    display: none; margin-top: 7px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 7px; padding: 9px 12px;
+    font-size: .68rem; color: var(--muted); font-family: var(--mono);
+    white-space: pre-wrap; word-break: break-all; line-height: 1.65;
+  }
+  .mb {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); padding: 3px 5px; font-size: .88rem;
+    border-radius: 5px; transition: all .13s; display: flex; align-items: center;
+  }
+  .mb:hover { color: var(--accent); background: rgba(0,229,160,.08); }
+
+  /* ── EMPTY / STATE ── */
+  .state td { text-align: center; padding: 56px 20px; color: var(--muted); font-size: .84rem; }
+  .state td svg { display: block; margin: 0 auto 12px; opacity: .25; }
+
+  /* ── PAGER ── */
+  .pager { display: flex; align-items: center; gap: 8px; margin-top: 14px; justify-content: flex-end; }
+  .pb {
+    background: transparent; border: 1px solid var(--border); color: var(--text);
+    padding: 4px 12px; border-radius: 7px; font-size: .78rem; cursor: pointer;
+    font-family: var(--mono); transition: all .14s; display: flex; align-items: center;
+  }
+  .pb:disabled { opacity: .28; cursor: default; }
+  .pb:not(:disabled):hover { border-color: var(--accent); color: var(--accent); background: rgba(0,229,160,.06); }
+  .pi { font-size: .72rem; color: var(--muted); font-family: var(--mono); }
+
+  /* ── SPINNER ── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spin { animation: spin .8s linear infinite; display: inline-block; }
+
+  /* ── STAT CARDS ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+    cursor: pointer; transition: border-color .18s, background .18s;
+    position: relative; overflow: hidden;
+  }
+  .stat-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 2px; border-radius: 10px 10px 0 0;
+    background: var(--card-accent, var(--border));
+    transition: opacity .18s;
+  }
+  .stat-card:hover { background: rgba(255,255,255,.025); border-color: var(--card-accent, var(--border)); }
+  .stat-card.active { border-color: var(--card-accent); background: rgba(255,255,255,.03); }
+  .stat-card.active::before { opacity: 1; }
+
+  .stat-icon {
+    width: 28px; height: 28px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px; background: var(--card-icon-bg, rgba(255,255,255,.05));
+  }
+  .stat-label {
+    font-size: .62rem; font-weight: 600; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 5px;
+  }
+  .stat-value {
+    font-size: 1.6rem; font-weight: 700; font-family: var(--mono);
+    color: var(--card-accent, var(--text)); line-height: 1;
+  }
+  .stat-sub {
+    font-size: .65rem; color: var(--muted); margin-top: 4px; font-family: var(--mono);
+  }
+
+  /* card colour themes */
+  .card-total   { --card-accent: var(--accent);  --card-icon-bg: rgba(0,229,160,.1); }
+  .card-success { --card-accent: #00c864;         --card-icon-bg: rgba(0,200,100,.1); }
+  .card-failure { --card-accent: var(--danger);   --card-icon-bg: rgba(255,77,109,.1); }
+  .card-warn    { --card-accent: var(--warn);     --card-icon-bg: rgba(255,183,48,.1); }
+  .card-info    { --card-accent: var(--accent2);  --card-icon-bg: rgba(0,184,255,.1); }
+  .card-error   { --card-accent: #ff6b6b;         --card-icon-bg: rgba(255,77,109,.08); }
+
+  @media (max-width: 900px) { .stats-row { grid-template-columns: repeat(3,1fr); } }
+  @media (max-width: 500px) { .stats-row { grid-template-columns: repeat(2,1fr); } }
+
+  /* ── MOBILE ── */
+  .hamburger-btn {
+    display: none; align-items: center; justify-content: center;
+    width: 36px; height: 36px; border-radius: 8px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); cursor: pointer; flex-shrink: 0; transition: all .15s;
+  }
+  .hamburger-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  @media (max-width: 960px) {
+    .hamburger-btn { display: flex; }
+    aside {
+      position: fixed !important; top: 0; left: 0; bottom: 0; z-index: 210;
+      width: 280px !important; transform: translateX(-100%);
+      transition: transform .25s cubic-bezier(.4,0,.2,1);
+      box-shadow: 4px 0 40px rgba(0,0,0,.6);
+    }
+    aside.mobile-open { transform: translateX(0); }
+    .shell { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    nav { padding: 0 14px; }
+    main { padding: 14px; }
+    .toolbar { flex-direction: column; align-items: stretch; }
+    .search-wrap input { width: 100%; }
+    .count-pill { margin-left: 0; }
+  }
+
+  /* ── AUTH GATE ── */
+  #authGate {
+    position: fixed; inset: 0; z-index: 9999;
+    background: #080c10;
+    display: flex; align-items: center; justify-content: center;
+  }
+  @keyframes spin-gate { to { transform: rotate(360deg); } }
+</style>
+
+<!-- ── Firebase auth guard ── -->
+<script type="module">
+  import { initializeApp }    from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC4k4kJZ2aDrYs7Ah-H0SuMF-d8s55X9ZM",
+    authDomain: "evoai-authentication.firebaseapp.com",
+    projectId: "evoai-authentication",
+    storageBucket: "evoai-authentication.firebasestorage.app",
+    messagingSenderId: "77079760801",
+    appId: "1:77079760801:web:2bbfeffffc38a6265c45e0"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      const gate = document.getElementById('authGate');
+      if (gate) gate.remove();
+      // Populate sidebar user info
+      const name   = user.displayName || user.email || 'User';
+      const email  = user.email || '';
+      const initials = name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+      const avatarEl = document.getElementById('sidebarAvatar');
+      const nameEl   = document.getElementById('sidebarUserName');
+      const emailEl  = document.getElementById('sidebarUserEmail');
+      if (avatarEl)  avatarEl.textContent  = initials;
+      if (nameEl)    nameEl.textContent    = name;
+      if (emailEl)   emailEl.textContent   = email;
+    } else {
+      window.location.href = '/index.html';
+    }
+  });
+
+  window.doSignOut = async () => {
+    const { signOut } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js");
+    await signOut(auth);
+    window.location.href = '/index.html';
+  };
+</script>
+</head>
+<body>
+
+<!-- ── AUTH GATE (shown until auth check completes) ── -->
+<div id="authGate">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:14px;opacity:.55">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="1.5" style="animation:spin-gate 1s linear infinite"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.28-4.56"/></svg>
+    <span style="font-family:'DM Mono',monospace;font-size:.72rem;color:#6b7fa3;letter-spacing:.08em">Verifying session…</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileSidebar()" aria-label="Menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+    <a class="nav-logo" href="#">
+      <img src="https://desk.evoaiglobal.ai/images/evoaidesk.png" alt="evoAIDesk" style="height:30px;width:auto;display:block;"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+      <span style="display:none;align-items:center;gap:6px;font-size:.9rem;font-weight:700;color:var(--accent);letter-spacing:-.01em;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        evoAIDesk
+      </span>
+    </a>
+    <span class="nav-badge">Logs</span>
+  </div>
+
+  <div class="nav-right">
+    <a href="/index.html" style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--muted);font-family:var(--mono);text-decoration:none;transition:color .15s;margin-right:4px;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Dashboards
+    </a>
+    <button class="pill-btn outline" onclick="loadPage(currentPage)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="navRefreshIcon">
+        <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+      </svg>
+      Refresh
+    </button>
+    <button class="pill-btn outline" onclick="doSignOut()" style="gap:5px;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign out
+    </button>
+  </div>
+</nav>
+
+<!-- MOBILE SIDEBAR OVERLAY -->
+<div id="mobileSidebarOverlay" onclick="closeMobileSidebar()"
+  style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);"></div>
+
+<div class="shell">
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+
+    <div class="aside-scroll">
+      <div class="aside-section">
+        <div class="aside-label">View</div>
+
+        <!-- All -->
+        <div class="aside-item active" id="nav-all" onclick="setQuickFilter('all',this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+          </svg>
+          All Logs <span class="aside-count" id="cnt-all">—</span>
+        </div>
+
+        <!-- Success -->
+        <div class="aside-item" id="nav-success" onclick="setQuickFilter('success',this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Success
+        </div>
+
+        <!-- Failure -->
+        <div class="aside-item" id="nav-failure" onclick="setQuickFilter('failure',this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          Failure
+        </div>
+
+        <!-- Warn -->
+        <div class="aside-item" id="nav-warn" onclick="setQuickFilter('warn',this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          Warnings
+        </div>
+
+        <!-- Error -->
+        <div class="aside-item" id="nav-error" onclick="setQuickFilter('error',this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+          </svg>
+          Errors
+        </div>
+
+        <!-- Info -->
+        <div class="aside-item" id="nav-info" onclick="setQuickFilter('info',this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          Info
+        </div>
+
+        <!-- Debug -->
+        <div class="aside-item" id="nav-debug" onclick="setQuickFilter('debug',this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+          </svg>
+          Debug
+        </div>
+
+        <!-- Skipped -->
+        <div class="aside-item" id="nav-skipped" onclick="setQuickFilter('skipped',this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="5 12 19 12"/><polyline points="15 8 19 12 15 16"/>
+          </svg>
+          Skipped
+        </div>
+      </div>
+
+      <div class="aside-section" style="margin-top:16px;">
+        <div class="aside-label">Navigation</div>
+        <div class="aside-item" onclick="window.location.href='dashboard.html'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          Dashboard
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR FOOTER -->
+    <div class="aside-user-footer">
+      <div class="user-avatar" id="sidebarAvatar">??</div>
+      <div class="aside-user-text">
+        <div class="aside-user-name" id="sidebarUserName">Loading…</div>
+        <div class="aside-user-email" id="sidebarUserEmail">evoaiglobal.ai</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div>
+        <div class="page-title">
+          <span class="page-title-dot"></span>
+          System Logs
+        </div>
+        <div class="page-sub">Live data via n8n · Neon Postgres</div>
+      </div>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stats-row">
+      <!-- Total -->
+      <div class="stat-card card-total" onclick="statClick('','','all-stat')" id="stat-total">
+        <div class="stat-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00e5a0" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+            <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+          </svg>
+        </div>
+        <div class="stat-label">Total Logs</div>
+        <div class="stat-value" id="sc-total">—</div>
+        <div class="stat-sub">all levels</div>
+      </div>
+      <!-- Success -->
+      <div class="stat-card card-success" onclick="statClick('','success','stat-success')" id="stat-success">
+        <div class="stat-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00c864" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div class="stat-label">Success</div>
+        <div class="stat-value" id="sc-success">—</div>
+        <div class="stat-sub" id="sc-success-pct">status</div>
+      </div>
+      <!-- Failure -->
+      <div class="stat-card card-failure" onclick="statClick('','failure','stat-failure')" id="stat-failure">
+        <div class="stat-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff4d6d" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </div>
+        <div class="stat-label">Failure</div>
+        <div class="stat-value" id="sc-failure">—</div>
+        <div class="stat-sub" id="sc-failure-pct">status</div>
+      </div>
+      <!-- Warn -->
+      <div class="stat-card card-warn" onclick="statClick('warn','','stat-warn')" id="stat-warn">
+        <div class="stat-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffb730" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <div class="stat-label">Warn</div>
+        <div class="stat-value" id="sc-warn">—</div>
+        <div class="stat-sub" id="sc-warn-pct">level</div>
+      </div>
+      <!-- Error level -->
+      <div class="stat-card card-error" onclick="statClick('error','','stat-error')" id="stat-error">
+        <div class="stat-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+          </svg>
+        </div>
+        <div class="stat-label">Error</div>
+        <div class="stat-value" id="sc-error">—</div>
+        <div class="stat-sub" id="sc-error-pct">level</div>
+      </div>
+      <!-- Info -->
+      <div class="stat-card card-info" onclick="statClick('info','','stat-info')" id="stat-info">
+        <div class="stat-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00b8ff" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+        </div>
+        <div class="stat-label">Info</div>
+        <div class="stat-value" id="sc-info">—</div>
+        <div class="stat-sub" id="sc-info-pct">level</div>
+      </div>
+    </div>
+
+    <!-- ERROR BANNER -->
+    <div class="err-banner" id="errBanner">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span id="errMsg"></span>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="q" placeholder="Search message, source…"/>
+      </div>
+      <select id="fm"><option value="">All modules</option></select>
+      <select id="ft"><option value="">All tenants</option></select>
+      <button class="icon-btn" onclick="loadPage(1)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="ri">
+          <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        </svg>
+        Reload
+      </button>
+      <span class="count-pill" id="cp">—</span>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th class="c0">#</th>
+          <th class="c1">Timestamp</th>
+          <th class="c2">Level</th>
+          <th class="c3">Status</th>
+          <th class="c4">Module</th>
+          <th class="c5">Source / User</th>
+          <th class="c6">Tenant</th>
+          <th class="c7">Message</th>
+          <th class="c8"></th>
+        </tr></thead>
+        <tbody id="tb">
+          <tr class="state"><td colspan="9">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            Connecting to n8n…
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PAGER -->
+    <div class="pager">
+      <span class="pi" id="pi"></span>
+      <button class="pb" id="pp" disabled>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <button class="pb" id="pn" disabled>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+    </div>
+  </main>
+</div>
+
+<script>
+const API = "https://n8n.evoaiglobal.ai/webhook/logs";
+const PS  = 10;
+let currentPage = 1, total = 0, busy = false;
+let activeLevelFilter  = '';
+let activeStatusFilter = '';
+
+const $ = id => document.getElementById(id);
+
+/* ── Apply stat cards from response.stats object ── */
+function applyStats(s) {
+  if (!s) return;
+  const tot = s.total || 0;
+  $('sc-total').textContent   = tot;
+  $('sc-success').textContent = s.success ?? '—';
+  $('sc-failure').textContent = s.failure ?? '—';
+  $('sc-warn').textContent    = s.warn    ?? '—';
+  $('sc-error').textContent   = s.error   ?? '—';
+  $('sc-info').textContent    = s.info    ?? '—';
+
+  const pct = n => tot > 0 ? ((n / tot) * 100).toFixed(1) + '% of total' : '0%';
+  $('sc-success-pct').textContent = pct(s.success || 0);
+  $('sc-failure-pct').textContent = pct(s.failure || 0);
+  $('sc-warn-pct').textContent    = pct(s.warn    || 0);
+  $('sc-error-pct').textContent   = pct(s.error   || 0);
+  $('sc-info-pct').textContent    = pct(s.info    || 0);
+}
+
+/* ── Card click: set filters and reload table ── */
+function statClick(level, status, cardId) {
+  const card = $(cardId === 'all-stat' ? 'stat-total' : 'stat-' + cardId.replace('stat-',''));
+  const isActive = card && card.classList.contains('active');
+
+  document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
+
+  if (isActive && cardId !== 'all-stat') {
+    activeLevelFilter  = '';
+    activeStatusFilter = '';
+    $('stat-total').classList.add('active');
+  } else {
+    if (card) card.classList.add('active');
+    if (cardId === 'all-stat') $('stat-total').classList.add('active');
+    activeLevelFilter  = level;
+    activeStatusFilter = status;
+  }
+  syncNavHighlight();
+  loadPage(1);
+}
+
+/* ── Unified sidebar quick-filter ── */
+// Map of nav key → { level, status }
+const QUICK_FILTERS = {
+  all:     { level: '', status: '' },
+  success: { level: '', status: 'success' },
+  failure: { level: '', status: 'failure' },
+  skipped: { level: '', status: 'skipped' },
+  warn:    { level: 'warn',  status: '' },
+  error:   { level: 'error', status: '' },
+  info:    { level: 'info',  status: '' },
+  debug:   { level: 'debug', status: '' },
+};
+
+function setQuickFilter(key, el) {
+  const f = QUICK_FILTERS[key] || QUICK_FILTERS.all;
+  activeLevelFilter  = f.level;
+  activeStatusFilter = f.status;
+  document.querySelectorAll('.aside-item[id^="nav-"]').forEach(e => e.classList.remove('active'));
+  if (el) el.classList.add('active');
+  loadPage(1);
+}
+
+function syncNavHighlight() {
+  // Highlight the matching nav item after a stat-card click
+  let key = 'all';
+  if (activeStatusFilter) key = activeStatusFilter;
+  else if (activeLevelFilter) key = activeLevelFilter;
+  document.querySelectorAll('.aside-item[id^="nav-"]').forEach(e => e.classList.remove('active'));
+  const el = $('nav-' + key);
+  if (el) el.classList.add('active');
+}
+
+function filters() {
+  return {
+    search: $("q").value.trim(),
+    level:  activeLevelFilter,
+    status: activeStatusFilter,
+    module: $("fm").value,
+    tenant: $("ft").value
+  };
+}
+
+async function loadPage(p) {
+  if (busy) return;
+  busy = true; currentPage = p;
+  $("ri").classList.add("spin");
+  $("navRefreshIcon").classList.add("spin");
+  $("pp").disabled = $("pn").disabled = true;
+  $("errBanner").classList.remove("show");
+
+  const f = filters();
+  const q = new URLSearchParams({ limit: PS, offset: (p - 1) * PS });
+  if (f.search) q.set("search", f.search);
+  if (f.level)  q.set("level",  f.level);
+  if (f.status) q.set("status", f.status);
+  if (f.module) q.set("module", f.module);
+  if (f.tenant) q.set("tenant", f.tenant);
+
+  try {
+    const res = await fetch(`${API}?${q}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const d = await res.json();
+    total = d.total || 0;
+    render(d.rows || []);
+    fillDropdown("fm", d.modules || []);
+    fillDropdown("ft", d.tenants || []);
+    $("cnt-all").textContent = total;
+    applyStats(d.stats || {});
+    updatePager();
+  } catch(e) {
+    $("errMsg").textContent = "Could not reach n8n: " + e.message;
+    $("errBanner").classList.add("show");
+    render([]);
+  } finally {
+    busy = false;
+    $("ri").classList.remove("spin");
+    $("navRefreshIcon").classList.remove("spin");
+  }
+}
+
+function render(rows) {
+  const tb = $("tb");
+  if (!rows.length) {
+    tb.innerHTML = `<tr class="state"><td colspan="9">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      No logs found</td></tr>`;
+    $("cp").textContent = "0 rows";
+    $("pi").textContent = "";
+    return;
+  }
+  tb.innerHTML = rows.map((r, i) => {
+    const meta = typeof r.meta === "object" ? JSON.stringify(r.meta, null, 2) : String(r.meta || "—");
+    const lc = { info:"li", warn:"lw", error:"le", debug:"lg" }[r.level] || "lg";
+    const sc = { success:"ls", failure:"le", skipped:"lw", partial:"lw" }[r.status] || "lg";
+    return `<tr>
+      <td class="uid">${r.id}</td>
+      <td class="ts">${fmtTime(r.created_at)}</td>
+      <td><span class="badge ${lc}">${r.level || '—'}</span></td>
+      <td><span class="badge ${sc}">${r.status || '—'}</span></td>
+      <td><span class="badge lm">${r.module || '—'}</span></td>
+      <td>
+        <div class="src">${esc(r.source || '—')}</div>
+        <div class="uid">${esc(r.user_id || '')}</div>
+      </td>
+      <td><span class="badge lt">${esc(r.tenant_id || '—')}</span></td>
+      <td class="msg">
+        ${esc(r.message || '')}
+        <div class="meta-panel" id="m${i}">${esc(meta)}</div>
+      </td>
+      <td>
+        <button class="mb" onclick="tog(${i})" title="Toggle meta" aria-label="Toggle meta">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+          </svg>
+        </button>
+      </td>
+    </tr>`;
+  }).join("");
+  $("cp").textContent = `${total} rows`;
+}
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function updatePager() {
+  const tp = Math.max(1, Math.ceil(total / PS));
+  const s  = (currentPage - 1) * PS + 1;
+  const e  = Math.min(currentPage * PS, total);
+  $("pi").textContent = total ? `${s}–${e} of ${total}` : "";
+  $("pp").disabled = currentPage <= 1;
+  $("pn").disabled = currentPage >= tp;
+}
+
+function fillDropdown(id, vals) {
+  const el = $(id);
+  const cur = el.value;
+  while (el.options.length > 1) el.remove(1);
+  vals.sort().forEach(v => {
+    const o = document.createElement("option");
+    o.value = v; o.textContent = v; el.appendChild(o);
+  });
+  if (vals.includes(cur)) el.value = cur;
+}
+
+function fmtTime(ts) {
+  const d  = new Date(ts);
+  const dt = d.toLocaleDateString("en-IN", { day:"2-digit", month:"short" });
+  const tm = d.toLocaleTimeString("en-IN", { hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:false });
+  return `${dt}<br>${tm}`;
+}
+
+function tog(i) {
+  const el = $("m" + i);
+  el.style.display = el.style.display === "block" ? "none" : "block";
+}
+
+/* ── Sidebar toggle ── */
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+}
+function toggleMobileSidebar() {
+  const sb = $('sidebar'), ov = $('mobileSidebarOverlay');
+  const open = sb.classList.contains('mobile-open');
+  if (open) { closeMobileSidebar(); }
+  else { sb.classList.add('mobile-open'); ov.style.display = 'block'; document.body.style.overflow = 'hidden'; }
+}
+function closeMobileSidebar() {
+  $('sidebar').classList.remove('mobile-open');
+  $('mobileSidebarOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+/* ── Event listeners ── */
+let dt;
+["q","fm","ft"].forEach(id => {
+  $(id).addEventListener("input",  () => { clearTimeout(dt); dt = setTimeout(() => loadPage(1), 380); });
+  $(id).addEventListener("change", () => loadPage(1));
+});
+$("pp").addEventListener("click", () => loadPage(currentPage - 1));
+$("pn").addEventListener("click", () => loadPage(currentPage + 1));
+
+$('stat-total').classList.add('active');
+loadPage(1);
+</script>
+</body>
+</html>
