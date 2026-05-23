@@ -41,20 +41,49 @@
     return await res.json(); // { ok: true/false, reason: '...' }
   }
 
+  // ── Overlay-based verifying indicator (never touches the Google button)
+  function showVerifying(visible) {
+    let overlay = document.getElementById('verifyingOverlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'verifyingOverlay';
+      overlay.style.cssText = 'position:fixed;inset:0;z-index:150;background:rgba(5,27,54,0.88);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px';
+      overlay.innerHTML = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#378ADD" stroke-width="2" style="animation:spin .8s linear infinite"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-.28-4.56"/></svg><span style="font-family:\'Sora\',sans-serif;font-size:.9rem;color:#85B7EB;letter-spacing:.02em">Verifying access\u2026</span>';
+      document.body.appendChild(overlay);
+    }
+    overlay.style.display = visible ? 'flex' : 'none';
+  }
+
+  // Always resets the Google button to its original state
+  function resetBtn() {
+    const btn = document.getElementById('googleBtn');
+    if (btn) { btn.disabled = false; btn.innerHTML = googleBtnInner; }
+  }
+
+  // Show login card cleanly (button reset, errors cleared)
+  function showLoginView() {
+    resetBtn();
+    clearError();
+    document.getElementById('selectorView').style.display = 'none';
+    document.getElementById('loginView').style.display    = 'block';
+  }
+
   async function authorise(user) {
-    showLoading('Verifying access…');
+    showVerifying(true);
     try {
       const result = await checkWithWorker(user);
+      showVerifying(false);
       if (result.ok) {
         showSelector(user);
       } else {
         await firebaseSignOut(auth);
-        hideLoading();
+        showLoginView();
         showError(result.reason || 'Access denied.');
       }
     } catch (err) {
+      showVerifying(false);
       await firebaseSignOut(auth);
-      hideLoading();
+      showLoginView();
       showError('Could not verify access. Check your connection and try again.');
       console.error(err);
     }
@@ -62,25 +91,25 @@
 
   // Auto-show selector if session is already active (returning from a dashboard)
   onAuthStateChanged(auth, async (user) => {
-    document.getElementById('authCheck').remove();
+    const authCheck = document.getElementById('authCheck');
+    if (authCheck) authCheck.remove();
     if (user) {
       await authorise(user);
     } else {
-      document.getElementById('loginView').style.display = 'block';
+      showLoginView();
     }
   });
 
   window.googleLogin = async () => {
     const btn = document.getElementById('googleBtn');
     btn.disabled = true;
-    btn.innerHTML = '<span class="btn-spinner"></span> Opening Google…';
+    btn.innerHTML = '<span class="btn-spinner"></span> Opening Google\u2026';
     clearError();
     try {
       const result = await signInWithPopup(auth, provider);
       if (result?.user) await authorise(result.user);
     } catch (err) {
-      btn.disabled = false;
-      btn.innerHTML = googleBtnInner;
+      resetBtn();
       if (err.code !== 'auth/popup-closed-by-user' && err.code !== 'auth/cancelled-popup-request') {
         showError(friendlyError(err.code));
       }
@@ -90,7 +119,7 @@
 
   function friendlyError(code) {
     const map = {
-      'auth/popup-blocked':          'Popup was blocked — please allow popups for this site and try again.',
+      'auth/popup-blocked':          'Popup was blocked \u2014 please allow popups for this site and try again.',
       'auth/user-disabled':          'This Google account has been disabled.',
       'auth/too-many-requests':      'Too many attempts. Please try again later.',
       'auth/network-request-failed': 'Network error. Check your connection and try again.',
@@ -100,29 +129,13 @@
     return map[code] || 'Something went wrong. Please try again.';
   }
 
-  function showLoading(msg) {
-    const btn = document.getElementById('googleBtn');
-    if (btn) {
-      btn.disabled = true;
-      btn.innerHTML = `<span class="btn-spinner"></span> ${msg}`;
-    }
-  }
-
-  function hideLoading() {
-    const btn = document.getElementById('googleBtn');
-    if (btn) {
-      btn.disabled = false;
-      btn.innerHTML = googleBtnInner;
-    }
-  }
-
   function showSelector(user) {
     document.getElementById('loginView').style.display = 'none';
     const sel = document.getElementById('selectorView');
     sel.style.display = 'flex';
-    const name  = user.displayName || user.email || 'User';
-    const email = user.email || '';
-    const initials = name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+    const name     = user.displayName || user.email || 'User';
+    const email    = user.email || '';
+    const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
     document.getElementById('userInitials').textContent = initials;
     document.getElementById('userName').textContent     = name;
     document.getElementById('userEmail').textContent    = email;
@@ -130,10 +143,12 @@
 
   window.goToDashboard = (url) => { window.location.href = url; };
 
+  // signOut: show overlay while Firebase clears the session;
+  // onAuthStateChanged will fire next (user=null) and call showLoginView()
   window.signOut = async () => {
+    showVerifying(true);
     await firebaseSignOut(auth);
-    document.getElementById('selectorView').style.display = 'none';
-    document.getElementById('loginView').style.display    = 'block';
+    // onAuthStateChanged handles the rest
   };
 
   function clearError() { document.getElementById('errorMsg').style.display = 'none'; }
