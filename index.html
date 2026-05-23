@@ -9,7 +9,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, setPersistence, browserLocalPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyC4k4kJZ2aDrYs7Ah-H0SuMF-d8s55X9ZM",
@@ -24,6 +24,11 @@
   const auth     = getAuth(app);
   const provider = new GoogleAuthProvider();
   await setPersistence(auth, browserLocalPersistence);
+
+  // Auto-show selector if session is already active (e.g. coming back from a dashboard)
+  onAuthStateChanged(auth, (user) => {
+    if (user) showSelector(user);
+  });
 
   window.googleLogin = async () => {
     const btn = document.getElementById('googleBtn');
