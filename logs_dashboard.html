@@ -408,7 +408,8 @@
     </button>
     <a class="nav-logo" href="#">
       <img src="/images/evoaidesk.png" alt="evoAIDesk" style="height:30px;width:auto;display:block;"
-           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+           onerror="this.style.display='none';var s=this.nextElementSibling;if(s)s.style.display='flex';"/>
+      <span style="display:none;align-items:center;gap:6px;font-size:.85rem;font-weight:700;color:var(--accent);font-family:var(--font);">evoAIDesk</span>
     </a>
     <span class="nav-badge">Logs</span>
   </div>
@@ -894,22 +895,29 @@ function fmtTime(ts) {
 
 function tog(i) {
   const el = $("m" + i);
+  if (!el) return;
   el.style.display = el.style.display === "block" ? "none" : "block";
 }
 
 /* ── Sidebar toggle ── */
 function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('collapsed');
+  const sidebar = document.getElementById('sidebar');
+  const shell   = document.querySelector('.shell');
+  if (!sidebar || !shell) return;
+  sidebar.classList.toggle('collapsed');
+  shell.style.gridTemplateColumns = sidebar.classList.contains('collapsed') ? '52px 1fr' : '230px 1fr';
 }
 function toggleMobileSidebar() {
   const sb = $('sidebar'), ov = $('mobileSidebarOverlay');
+  if (!sb || !ov) return;
   const open = sb.classList.contains('mobile-open');
   if (open) { closeMobileSidebar(); }
   else { sb.classList.add('mobile-open'); ov.style.display = 'block'; document.body.style.overflow = 'hidden'; }
 }
 function closeMobileSidebar() {
-  $('sidebar').classList.remove('mobile-open');
-  $('mobileSidebarOverlay').style.display = 'none';
+  const sb = $('sidebar'), ov = $('mobileSidebarOverlay');
+  if (sb) sb.classList.remove('mobile-open');
+  if (ov) ov.style.display = 'none';
   document.body.style.overflow = '';
 }
 
